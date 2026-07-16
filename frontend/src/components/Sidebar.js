@@ -80,8 +80,10 @@ const Sidebar = {
         if (rol === "SUPERADMIN") {
             return [
                 { href: "/dashboard-superadmin", label: "Dashboard", icon: icon.dashboard },
+                { href: "/instituciones", label: "Instituciones", icon: icon.escuela },
                 { href: "/campanas", label: "Campañas", icon: icon.campana },
                 { href: "/estudiantes", label: "Estudiantes", icon: icon.gente },
+                { href: "/instituciones/crear-admin", label: "Crear Admin", icon: icon.perfil },
                 { href: "/perfil", label: "Mi Perfil", icon: icon.perfil },
                 { href: "/configuracion", label: "Configuración", icon: icon.config }
             ];

@@ -1,3 +1,4 @@
+import Auth from "../modules/auth";
 import Layout from "../components/Layout";
 import * as CampaignService from "../services/campaignService";
 import Toast from "../components/Toast";
@@ -6,6 +7,23 @@ import Router from "../modules/router";
 const CAMPAIGN_TYPES = [
     "academico", "cultural", "deportivo", "tecnologia", "salud", "medio_ambiente", "artes"
 ];
+
+// HU-07: SUPERADMIN ve "Todos" o "Egresados"
+// HU-08: ADMINISTRADOR ve "Estudiantes", "Egresados" o "Ambos"
+function getTargetPopulationOptions() {
+    const user = Auth.getUser();
+    if (user?.rol === "SUPERADMIN") {
+        return [
+            { value: "all", label: "Todos" },
+            { value: "graduates", label: "Egresados" },
+        ];
+    }
+    return [
+        { value: "students", label: "Estudiantes" },
+        { value: "graduates", label: "Egresados" },
+        { value: "all", label: "Ambos" },
+    ];
+}
 
 const SCOPE_TYPES = [
     { value: "GLOBAL", label: "Global" },
@@ -91,6 +109,15 @@ const CampanaForm = {
                             <h2 class="text-lg font-semibold text-gray-700">Alcance y criterios</h2>
 
                             <div>
+                                <label for="cam-target" class="block text-sm font-medium text-gray-700 mb-1">Población objetivo *</label>
+                                <select id="cam-target" required
+                                    class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
+                                    ${getTargetPopulationOptions().map(t => `<option value="${t.value}">${t.label}</option>`).join("")}
+                                </select>
+                                <p class="text-xs text-red-500 mt-1 hidden" id="cam-target-error"></p>
+                            </div>
+
+                            <div>
                                 <label for="cam-scope" class="block text-sm font-medium text-gray-700 mb-1">Alcance *</label>
                                 <select id="cam-scope" required
                                     class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
@@ -136,6 +163,7 @@ const CampanaForm = {
                         content.querySelector("#cam-end").value = campaign.end_date || "";
                         content.querySelector("#cam-url").value = campaign.url_multimedia || "";
                         content.querySelector("#cam-pinned").checked = campaign.pinned === true;
+                        content.querySelector("#cam-target").value = campaign.target_population || "all";
                         if (campaign.scope && campaign.scope[0]) {
                             content.querySelector("#cam-scope").value = campaign.scope[0].scope_type || "GLOBAL";
                         }
@@ -173,11 +201,13 @@ const CampanaForm = {
                 hideError("#cam-type-error");
                 hideError("#cam-start-error");
                 hideError("#cam-scope-error");
+                hideError("#cam-target-error");
 
                 if (!titleVal) showError("#cam-title-error", "El título es obligatorio");
                 if (!typeVal) showError("#cam-type-error", "Selecciona un tipo");
                 if (!startVal) showError("#cam-start-error", "La fecha de inicio es obligatoria");
                 if (!content.querySelector("#cam-scope").value) showError("#cam-scope-error", "Selecciona un alcance");
+                if (!content.querySelector("#cam-target").value) showError("#cam-target-error", "Selecciona la población objetivo");
 
                 if (!valid) return;
 
@@ -193,6 +223,7 @@ const CampanaForm = {
                     end_date: content.querySelector("#cam-end").value || null,
                     url_multimedia: content.querySelector("#cam-url").value.trim() || null,
                     pinned: content.querySelector("#cam-pinned").checked,
+                    target_population: content.querySelector("#cam-target").value,
                 };
 
                 try {

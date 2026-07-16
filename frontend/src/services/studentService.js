@@ -27,11 +27,33 @@ export async function getStudents(filters = {}) {
     if (filters.gender_id) params.append('gender_id', filters.gender_id);
     if (filters.min_age) params.append('min_age', filters.min_age);
     if (filters.max_age) params.append('max_age', filters.max_age);
+    if (filters.search) params.append('search', filters.search);
     
     const queryString = params.toString();
     const endpoint = queryString ? `api/students?${queryString}` : 'api/students';
     
     const res = await http.get(endpoint);
+    return res.json();
+}
+
+/**
+ * Crear un nuevo estudiante (persona + perfil académico)
+ * @param {Object} data - Datos del estudiante
+ * @returns {Promise<Object>}
+ */
+export async function createStudent(data) {
+    const res = await http.post('api/people', data);
+    return res.json();
+}
+
+/**
+ * Actualizar estudiante por admin (editar datos de persona y perfil)
+ * @param {number} studentProfileId - ID del perfil de estudiante
+ * @param {Object} data - Datos a actualizar
+ * @returns {Promise<Object>}
+ */
+export async function updateStudentByAdmin(studentProfileId, data) {
+    const res = await http.put(`api/students/${studentProfileId}`, data);
     return res.json();
 }
 

@@ -13,13 +13,13 @@ const Layout = {
             container.dataset.role = user.rol;
         }
 
-        const sidebarCollapsed = localStorage.getItem(STORAGE_KEY) === "true";
+        const isMobile = window.innerWidth < 1024;
+        const sidebarCollapsed = isMobile ? true : (localStorage.getItem(STORAGE_KEY) === "true");
 
         container.innerHTML = `
             <div id="layout-sidebar"
                 class="fixed left-0 top-0 z-50 w-64 h-screen transition-transform duration-300
-                       ${sidebarCollapsed ? '-translate-x-full' : 'translate-x-0'}
-                       max-lg:-translate-x-full">
+                       ${sidebarCollapsed ? '-translate-x-full' : 'translate-x-0'}">
             </div>
             <div id="sidebar-backdrop"
                 class="fixed inset-0 z-40 bg-black/50 opacity-0 pointer-events-none transition-opacity duration-300">
@@ -61,9 +61,7 @@ const Layout = {
                         const collapsed = sidebarEl.classList.contains("-translate-x-full");
                         localStorage.setItem(STORAGE_KEY, collapsed);
                     }
-                    const isOpen = isMobile
-                        ? sidebarEl.classList.contains("translate-x-0")
-                        : sidebarEl.classList.contains("translate-x-0");
+                    const isOpen = sidebarEl.classList.contains("translate-x-0");
                     toggleBtn.setAttribute("aria-label", isOpen ? "Cerrar menú" : "Abrir menú");
                 };
                 toggleBtn.addEventListener("click", toggle);

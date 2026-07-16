@@ -1,325 +1,128 @@
 # Guía de Migración al Backend Real
 
-## IMPORTANTE
-
-Este documento explica qué archivos eliminar y qué cambios realizar cuando el equipo backend termine los endpoints reales con FastAPI + PostgreSQL.
+> Este backend mock reemplaza una API real que el equipo backend debe construir.  
+> Cuando esa API esté lista, sigue esta guía para reemplazar el mock.
 
 ---
 
-## 1. ARCHIVOS A ELIMINAR
+## 1. Archivos a Eliminar
 
-### Backend Mock
-- `backend/server.js` - Servidor Express mock
-- `backend/db.json` - Base de datos JSON
-- `backend/seed/` - Toda la carpeta (generador de datos)
-
-### Dependencias (opcional)
-Si no se usan en el backend real:
-```bash
-npm uninstall json-server
+```
+backend/                 # Toda la carpeta
+frontend/src/services/   # Los servicios mock (reemplazar por llamadas reales)
 ```
 
 ---
 
-## 2. ARCHIVOS A MODIFICAR
+## 2. Contracto de API
 
-### `frontend/src/modules/auth.js`
+El frontend espera que la API real implemente exactamente los mismos endpoints, parámetros y estructuras de respuesta que el mock.  
+Ver `backend/README.md` (versión anterior al borrado) para la especificación completa.
 
-**Cambiar la URL del API:**
-```javascript
-// ANTES (Backend mock)
-export const API_URL = "http://localhost:3001"
+### Endpoints requeridos
 
-// DESPUÉS (Backend real)
-export const API_URL = "http://localhost:3000"
-```
+**Autenticación**
+- `POST /api/auth/login` → `{ token, username, rol, person_id, institution_id?, student_profile_id? }`
+- `GET  /api/auth/me` → Datos del usuario (requiere `Authorization: Bearer <token>`)
 
-### `package.json` (raíz)
+**Campañas**
+- `GET    /api/campaigns` — Lista con filtros: `active`, `institution_id`, `scope_type`, `person_id`
+- `GET    /api/campaigns/active` — Solo campañas vigentes
+- `GET    /api/campaigns/pinned` — Campañas fijadas
+- `GET    /api/campaigns/available/:personId` — Disponibles para una persona (filtra por target_population, scope, criteria)
+- `GET    /api/campaigns/:id` — Detalle con scope, criteria, enrollment_count, enrolled students
+- `POST   /api/campaigns` — Crear (requiere SUPERADMIN o ADMINISTRADOR)
+- `PUT    /api/campaigns/:id` — Editar
+- `DELETE /api/campaigns/:id` — Eliminar
+- `POST   /api/campaigns/:id/enroll` — Inscribir estudiante (valida target_population, scope, criteria)
 
-**Actualizar scripts:**
-```json
-{
-  "scripts": {
-    "dev:backend": "npm --prefix backend run dev",
-    "dev:frontend": "npm --prefix frontend run dev",
-    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\""
-  }
-}
-```
+**Estudiantes**
+- `GET  /api/students` — Lista con filtros: `institution_id`, `status_id`, `grade_id`, `gender_id`, `min_age`, `max_age`, `search`
+- `GET  /api/students/campaign/:campaignId` — Estudiantes inscritos en campaña
+- `PUT  /api/students/:studentProfileId` — Editar campos del perfil
 
-**Eliminar script obsoleto:**
-```json
-// ELIMINAR:
-"dev:mock": "npm --prefix backend run dev:mock",
-"db:seed": "node backend/seed/index.js"
-```
+**Personas**
+- `POST /api/people` — Crear persona + perfil de estudiante
+- `GET  /api/people/:id` — Detalle enriquecido (edad, género, documento, barrio, localidad, student_profile)
+- `PUT  /api/people/:id` — Actualizar (campos: first_name, last_name, email, phone, address)
 
----
+**Instituciones**
+- `GET    /api/institutions` — Lista
+- `GET    /api/institutions/:id` — Detalle
+- `GET    /api/institutions/:id/students` — Estudiantes de la institución
+- `POST   /api/institutions` — Crear (SUPERADMIN)
+- `PUT    /api/institutions/:id` — Editar (SUPERADMIN)
+- `DELETE /api/institutions/:id` — Eliminar (SUPERADMIN)
 
-## 3. ENDPOINTS DEL BACKEND REAL
+**Credenciales**
+- `POST /api/credentials` — Crear usuario administrador (SUPERADMIN)
 
-Asegúrate de que el backend real implemente los siguientes endpoints:
+**Dashboard**
+- `GET /api/dashboard/stats` — Estadísticas globales
+- `GET /api/dashboard/stats/:institutionId` — Estadísticas por institución
 
-### Autenticación
-- `POST /api/auth/login` → `{ token, username, rol, person_id, institution_id? }`
-- `GET /api/auth/me` → Datos del usuario actual (requiere Authorization header)
+**Catálogos**
+- `GET /api/user-roles`, `/api/document-types`, `/api/genders`, `/api/grades`, `/api/statuses`, `/api/localities`, `/api/neighborhoods`
 
-### Campañas
-- `GET /api/campaigns` → Lista de campañas (filtros: active, institution_id, scope_type, person_id)
-- `GET /api/campaigns/active` → Solo campañas vigentes
-- `GET /api/campaigns/pinned` → Campañas fijadas
-- `GET /api/campaigns/available/:personId` → Campañas disponibles para una persona
-- `POST /api/campaigns/:id/enroll` → Inscribirse (debe validar scope + criteria del estudiante)
-
-### Estudiantes
-- `GET /api/students` → Lista de estudiantes (filtros: institution_id, status_id, grade_id, gender_id, min_age, max_age). Requiere rol SUPERADMIN o ADMINISTRADOR.
-- `GET /api/students/campaign/:campaignId` → Estudiantes inscritos en una campaña
-
-### Instituciones
-- `GET /api/institutions` → Lista de instituciones
-- `GET /api/institutions/:id` → Detalle de una institución
-- `GET /api/institutions/:id/students` → Estudiantes de una institución
-
-### Dashboard
-- `GET /api/dashboard/stats` → Estadísticas globales (requiere rol SUPERADMIN o ADMINISTRADOR)
-- `GET /api/dashboard/stats/:institutionId` → Estadísticas de una institución (requiere rol SUPERADMIN o ADMINISTRADOR)
-
-### Personas
-- `GET /api/people/:id` → Detalle de una persona (con datos enriquecidos: edad, género, documento, barrio, localidad, student_profile)
-- `PUT /api/people/:id` → Actualizar datos de una persona (estudiantes solo con campaña activa; campos permitidos: first_name, last_name, email, phone, address)
-
-### Catálogos
-- `GET /api/user-roles`
-- `GET /api/document-types`
-- `GET /api/genders`
-- `GET /api/grades`
-- `GET /api/statuses`
-- `GET /api/localities`
-- `GET /api/neighborhoods`
+**Configuración**
+- `POST /api/auth/change-password` — Cambiar contraseña
 
 ---
 
-## 4. ESTRUCTURA ESPERADA DE RESPUESTAS
+## 3. Autenticación y Roles
 
-### Login
-```json
-{
-  "token": "jwt_token_aqui",
-  "username": "admin_global",
-  "rol": "SUPERADMIN",
-  "person_id": 1,
-  "institution_id": null,
-  "student_profile_id": null
-}
-```
-
-### Estudiante
-```json
-{
-  "id": 1,
-  "people_id": 11,
-  "institution_id": 1,
-  "status_id": 1,
-  "grade_id": 11,
-  "start_date": "2023-08-15",
-  "end_date": null,
-  "person": {
-    "id": 11,
-    "first_name": "Juan",
-    "last_name": "García López",
-    "email": "juan.garcia@gmail.com",
-    "phone": "3001234567",
-    "document_type": 1,
-    "document_number": "12345678",
-    "address": "Calle 72 # 54-120",
-    "age": 17
-  },
-  "institution": {
-    "id": 1,
-    "name": "I.E.D. Normal Superior de Barranquilla"
-  },
-  "status": "Activo",
-  "grade": "11°",
-  "gender": "Masculino",
-  "locality": "Norte",
-  "neighborhood": "Belén"
-}
-```
-
-### Campaña
-```json
-{
-  "id": 1,
-  "title": "Actualización Datos Generales 2026",
-  "type": "General",
-  "description": "Campaña para actualizar información...",
-  "sponsor": "Alcaldía de Barranquilla",
-  "created_by_credentials_id": 1,
-  "start_date": "2026-01-15",
-  "end_date": "2026-12-31",
-  "url_multimedia": null,
-  "pinned": true,
-  "scope": [
-    {
-      "id": 1,
-      "scope_type": "GLOBAL",
-      "campaign_id": 1,
-      "institution_id": null,
-      "neighborhood_id": null,
-      "localities_id": null
-    }
-  ],
-  "criteria": [],
-  "enrollment_count": 150
-}
-```
-
-### Institución
-```json
-{
-  "id": 1,
-  "institution_name": "I.E.D. Normal Superior de Barranquilla",
-  "director": "María Fernanda López Castillo",
-  "address": "Calle 72 # 54-120",
-  "neighborhood_id": 1,
-  "credential_id": 2,
-  "dane_code": "110001000001",
-  "neighborhood": "Belén",
-  "locality": "Norte",
-  "student_count": 18,
-  "graduate_count": 12
-}
-```
-
-### Estadísticas
-```json
-{
-  "total_students": 122,
-  "total_graduates": 79,
-  "total_withdrawn": 12,
-  "total_population": 213,
-  "updated_count": 85,
-  "pending_count": 128,
-  "update_percentage": 40,
-  "last_update_date": "2026-07-10T15:30:00.000Z"
-}
-```
-
-### Persona (GET /api/people/:id)
-```json
-{
-  "id": 11,
-  "first_name": "Juan",
-  "last_name": "García López",
-  "email": "juan.garcia@gmail.com",
-  "phone": "3001234567",
-  "birth_date": "2009-03-15",
-  "document_type_id": 1,
-  "document_number": "12345678",
-  "address": "Calle 72 # 54-120",
-  "neighborhood_id": 1,
-  "age": 17,
-  "document_type": "Cédula de Ciudadanía",
-  "gender": "Masculino",
-  "neighborhood": "Belén",
-  "locality": "Norte",
-  "student_profile": {
-    "id": 5,
-    "grade": "11°",
-    "status": "Activo",
-    "institution": {
-      "id": 1,
-      "name": "I.E.D. Normal Superior de Barranquilla"
-    }
-  }
-}
-```
-
----
-
-## 5. AUTENTICACIÓN
-
-### Frontend (ya implementado)
-El frontend envía el token en el header Authorization:
+El frontend envía el token en cada petición:
 ```
 Authorization: Bearer <token>
 ```
 
-### Backend Real
-- Recibir el header Authorization
-- Extraer el token
-- Verificar/decodificar el token JWT
-- Retornar 401 si el token es inválido
-- Retornar 403 si el usuario no tiene permisos
+El backend real debe:
+1. Extraer y verificar el token (JWT)
+2. Poblar `req.user` con `{ id, username, role, person_id, institution_id?, student_profile_id? }`
+3. Retornar 401 si el token es inválido/expirado
+4. Retornar 403 si el rol no tiene permiso
 
----
+### Restricciones por rol
 
-## 6. RESTRICCIONES POR ROL
-
-El backend real debe implementar las siguientes restricciones:
-
-| Operación | SuperAdmin | Admin | Estudiante |
-|-----------|------------|-------|------------|
-| Ver todas las instituciones | ✅ | ❌ | ❌ |
-| Ver su institución | ✅ | ✅ | ✅ (solo info) |
-| Crear campañas globales | ✅ | ❌ | ❌ |
-| Crear campañas institucionales | ✅ | ✅ | ❌ |
+| Operación | SUPERADMIN | ADMINISTRADOR | ESTUDIANTE |
+|-----------|:----------:|:-------------:|:----------:|
+| CRUD instituciones | ✅ | ❌ | ❌ |
+| CRUD campañas globales | ✅ | ❌ | ❌ |
+| CRUD campañas institucionales | ✅ | ✅ | ❌ |
 | Ver todos los estudiantes | ✅ | ❌ | ❌ |
 | Ver estudiantes de su institución | ✅ | ✅ | ❌ |
-| Inscribirse en campaña | ❌ | ❌ | ✅ (con validación scope+criteria) |
-| Ver campañas disponibles | ✅ | ✅ | ✅ |
-| Editar su perfil | ✅ | ✅ | ✅* |
-| Ver estadísticas | ✅ | ✅ (solo su institución) | ❌ |
-
-*Solo cuando hay campaña activa
-
----
-
-## 7. PRUEBAS
-
-### Credenciales de prueba (mismas que el mock)
-- **SuperAdmin:** admin_global / 123456
-- **Admin:** admin_n1 / 123456 (Institución 1)
-- **Estudiante:** (ver db.json generado)
-
-### Verificar endpoints
-```bash
-# Login
-curl -X POST http://localhost:3000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"username":"admin_global","password":"123456"}'
-
-# Obtener campañas activas (con token)
-curl http://localhost:3000/api/campaigns/active \
-  -H "Authorization: Bearer <token>"
-```
+| Ver/editar su perfil | ✅ | ✅ | ✅ |
+| Inscribirse en campaña | ❌ | ❌ | ✅ |
+| Dashboard estadísticas | ✅ | ✅ (solo su inst.) | ❌ |
+| Crear administradores | ✅ | ❌ | ❌ |
+| Crear estudiantes | ✅ | ✅ | ❌ |
 
 ---
 
-## 8. CAMBIOS EN FRONTEND (si es necesario)
+## 4. Cambios en Frontend
 
-Si el backend real retorna una estructura diferente, ajustar los servicios:
-- `frontend/src/services/campaignService.js`
-- `frontend/src/services/studentService.js`
-- `frontend/src/services/institutionService.js`
-- `frontend/src/services/authService.js`
+Cuando la API real esté lista:
+
+1. **Eliminar la carpeta `backend/` completa**
+2. **Eliminar `frontend/src/services/`** y reemplazar con llamadas a la API real
+3. **Configurar la URL del API** en `frontend/src/modules/auth.js`:
+   ```js
+   export const API_URL = "http://localhost:3000" // Puerto del backend real
+   ```
+4. **Actualizar `vite.config.js`** si es necesario (proxy)
+5. **Actualizar `package.json` raíz** para quitar scripts del mock
 
 ---
 
-## 9. CHECKLIST DE MIGRACIÓN
+## 5. Checklist de Migración
 
-- [ ] Backend real implementado con todos los endpoints
-- [ ] JWT funcionando correctamente
-- [ ] Restricciones por rol implementadas (`requireAuth`, `requireRole`)
-- [ ] `POST /api/campaigns/:id/enroll` valida scope (GLOBAL/INSTITUTION/NEIGHBORHOOD/LOCALITY) y criteria (género, grado, estado, edad)
-- [ ] `GET /api/students` restringe a rol SUPERADMIN o ADMINISTRADOR
-- [ ] `GET /api/dashboard/stats` restringe a rol SUPERADMIN o ADMINISTRADOR
-- [ ] `GET /api/people/:id` retorna datos enriquecidos (edad, género, documento, barrio, student_profile)
-- [ ] `PUT /api/people/:id` permite campos: first_name, last_name, email, phone, address
-- [ ] Respuestas del backend coinciden con la estructura esperada
-- [ ] `GET /api/campaigns/available/:personId` incluye `enrollment_count`
-- [ ] Frontend actualizado para apuntar a http://localhost:3000
-- [ ] Archivos del backend mock eliminados
-- [ ] Scripts de package.json actualizados
+- [ ] Todos los endpoints implementados
+- [ ] JWT funcionando con `Authorization: Bearer`
+- [ ] `requireAuth` y `requireRole` implementados
+- [ ] `POST /api/campaigns/:id/enroll` valida target_population, scope y criteria
+- [ ] `GET /api/students` filtra por search/status/grade/gender/age
+- [ ] `GET /api/people/:id` retorna datos enriquecidos
+- [ ] Respuestas coinciden con la estructura del mock
+- [ ] Scripts de `package.json` raíz actualizados
+- [ ] Frontend actualizado para apuntar al nuevo backend
 - [ ] Pruebas de integración realizadas
-- [ ] Documentación actualizada

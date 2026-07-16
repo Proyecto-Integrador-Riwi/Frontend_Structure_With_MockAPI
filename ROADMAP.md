@@ -62,7 +62,7 @@
 
 | # | Deuda | Archivos | Acción |
 |---|-------|----------|--------|
-| T1.1 | **Código muerto** — Eliminar `Dashboard.js`, `Hero.js`, `Carousel.js`, `icons.svg` | 4 archivos | No se usan en ninguna vista |
+| T1.1 | **Código muerto** — Eliminar `Dashboard.js`, `Hero.js`, `Carousel.js`, `icons.svg` | 4 archivos | No se usan en ninguna vista | ✅ `index.js`, `db.js`, `controllers/`, `models/`, `routes/` eliminados (Jul 2026) |
 | T1.2 | **Lógica duplicada** — El `onFilter` en `Institucion.js` y `Estudiantes.js` es idéntico | Ambos archivos | Extraer a `utils/filters.js` |
 | T1.3 | **Listener leaks en Layout** — Cada navegación re-agrega event listeners sin limpiar los viejos | `Layout.js` | Guardar referencias y remover antes de re-agregar |
 | T1.4 | **Proxy de Vite** — Configurar proxy para eliminar CORS y hardcodeo de `API_URL` | `vite.config.js`, `auth.js` | ✅ Implementado — `API_URL=""` + proxy en `vite.config.js` |
@@ -71,6 +71,7 @@
 | T1.8 | **Sin error boundary en Router** — Si un view.render() lanza error, la app se rompe | `router.js` | ✅ Implementado — try/catch con pantalla de error + botón recargar |
 | T1.9 | **PUT en http.js ignora ID** — Firma acepta `id` pero no lo usa | `http.js` | ✅ Implementado — JSDoc corregido, firma limpia |
 | T1.10 | **Sin lazy loading** — Todos los views se importan al inicio en `main.js` | `main.js` | Baja prioridad, SPA pequeña |
+| T1.11 | **Sin .gitignore** — `node_modules/` y `dist/` pueden commiteares | raíz | ✅ Creado `.gitignore` (Jul 2026) |
 
 ---
 

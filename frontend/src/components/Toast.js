@@ -56,7 +56,11 @@ const Toast = {
                 setTimeout(() => toast.remove(), 300);
             }
         }, duration);
-    }
+    },
+    success(msg, duration) { this.show(msg, "success", duration); },
+    error(msg, duration) { this.show(msg, "error", duration); },
+    info(msg, duration) { this.show(msg, "info", duration); },
+    warning(msg, duration) { this.show(msg, "warning", duration); }
 };
 
 export default Toast;

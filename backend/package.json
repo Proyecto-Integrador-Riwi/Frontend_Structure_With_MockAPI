@@ -1,11 +1,11 @@
 {
-  "name": "backend",
+  "name": "backend-mock",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Backend mock provisional para NexoEdu",
+  "main": "server.js",
   "scripts": {
-    "dev": "node index.js",
-    "dev:mock": "node server.js"
+    "start": "node server.js",
+    "seed": "node seed/index.js"
   },
   "keywords": [],
   "author": "",
@@ -13,7 +13,6 @@
   "type": "module",
   "dependencies": {
     "cors": "^2.8.6",
-    "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "pg": "^8.22.0"
   }

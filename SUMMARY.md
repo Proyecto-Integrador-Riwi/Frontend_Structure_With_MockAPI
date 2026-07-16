@@ -1,68 +1,43 @@
 ## Objective
-- Complete the NexoEdu frontend (vanilla JS SPA) with all views, fix critical bugs found in audit, and execute a 17-item visual design overhaul (4 phases)
+- Deliver a complete Student and Graduate Tracking System MVP (NexoEdu) with all 18 user stories, covering Super Admin, Institutional Admin, and Student roles.
 
 ## Important Details
-- Role values are uppercase: `"SUPERADMIN"`, `"ADMINISTRADOR"`, `"ESTUDIANTE"`; stored as `rol` (not `role`)
-- `Auth.Login()` returns user with `rol`, `person_id`, `institution_id`, `student_profile_id`
-- Express 5 does NOT support `?` optional params — separate routes for `/institucion` and `/institucion/:id`
-- Campaigns have no `status_id` — use date-based filtering (active / upcoming / finished)
-- All data endpoints now require auth (`requireAuth`), admin-only ones use `requireRole`
-- Design uses two fonts: Inter (headings) + Nunito (body) via Google Fonts
+- Role values: `SUPERADMIN`, `ADMINISTRADOR`, `ESTUDIANTE`
+- Backend is a provisional Express mock (`backend/server.js` + `db.json`)
+- Frontend: Vite + Vanilla JS + Tailwind CSS v4 (no framework)
+- Auth: token simulado en memoria (no JWT real)
 
 ## Work State
 ### Completed
-- **All views functional**: Login, DashboardSuperAdmin, DashboardAdmin, DashboardEstudiante, Institucion, Campañas, CampañaForm, CampañaDetalle, Estudiantes, EstudianteDetalle, MisCampañas, Perfil, Configuracion (13 views total)
-- **CRUD de campañas**: Crear (`CampañaForm.js` + ruta `/campanas/crear` + `POST /api/campaigns`), ver detalle (`CampañaDetalle.js` + ruta `/campanas/:id` + `GET /api/campaigns/:id`), editar (`CampañaForm.js` + `PUT /api/campaigns/:id`), eliminar (ConfirmDialog + `DELETE /api/campaigns/:id`)
-- **Detalle de estudiante**: `EstudianteDetalle.js` + ruta `/estudiante/:id` + `GET /api/people/:id` con información personal, grado, institución, estado y campañas inscritas
-- **Progreso por campaña (B1.4)**: Barra de progreso + cards (inscritos/actualizados/pendientes) + columna de estado en tabla de estudiantes. Endpoint `GET /api/campaigns/:id/progress`
-- **Configuración (B1.9)**: `Configuracion.js` con cambio de contraseña + selector de tema oscuro. Endpoint `POST /api/auth/change-password`
-- **Filtro de estudiantes extraído** a `utils/filters.js` (eliminada duplicación entre Estudiantes e Institución)
-- 15 audit bugs fixed (3 critical, 7 high, 5 medium)
-- All 3 READMEs updated
-- Design Phase 1 (Quick Wins) completed
-- `style.css` rewritten with CSS variables, keyframes, utilities, dark mode variables
-- Skeleton loaders in all views with sync render pattern
-- **Proxy de Vite**: `API_URL` cambiada a `""`, proxy `/api` → `localhost:3001` en `vite.config.js`, eliminando CORS y hardcodeo
-- **Timeout en http.js**: AbortSignal con 30s para evitar peticiones colgadas
-- **Dependencias duplicadas limpiadas**: `express` y `cors` eliminados de `package.json` raíz
-- **.env sanitizado**: Contraseña real reemplazada por valores de ejemplo
-- **Sidebar colapsable en todos los tamaños**: Botón toggle siempre visible, animación con transform, estado persistido en localStorage. Main content con margin-left dinámico
-- **Error boundary en Router**: try/catch con pantalla de error + botón recargar
-- **Breakpoint sidebar corregido**: 1023px → 1024px
-- **Delay router reducido**: 200ms → 100ms
-- **StatsCard con animación de conteo**: requestAnimationFrame + IntersectionObserver
-- **Responsive mejorado**: breadcrumbs truncados, filtros full-width, dialog mobile padding
+- **17 vistas funcionales**: Login, DashboardSuperAdmin, DashboardAdmin, DashboardEstudiante, Campañas, CampañaForm, CampañaDetalle, Estudiantes, CrearEstudiante, EstudianteDetalle, GestionInstituciones, InstitucionForm, Institucion, CrearAdmin, MisCampañas, Perfil, Configuracion
+- **CRUD completo**: campañas (crear/editar/eliminar), instituciones (crear/editar/eliminar), estudiantes (crear/editar), credenciales (crear)
+- **Filtros**: búsqueda por nombre/documento en estudiantes, filtro Actualizados/Pendientes (HU-15), filtros por institución/estado/grado/género/edad
+- **target_population**: campañas con alcance a estudiantes, egresados o ambos (HU-07/HU-08). Filtrado en disponibles e inscripción
+- **Semáforo de actualización**: indicador verde/amarillo/rojo según last_update_date (HU-14)
+- **Dashboard con estadísticas**: totales, actualizados/pendientes, porcentaje
+- **Toast, ConfirmDialog, Skeleton, EmptyState**: componentes reutilizables
+- **Sidebar colapsable**: persistencia en localStorage, animación
+- **Router con error boundary**: try/catch + pantalla de error + recargar
+- **Proxy de Vite**: elimina CORS y hardcodeo de API_URL
+- **Timeout en HTTP**: AbortSignal 30s
+- **15 bugs corregidos**: role checks, router loops, http.put, auth guards, etc.
+- **Limpieza del proyecto**: creado `.gitignore`, eliminados archivos no usados del backend real (`index.js`, `db.js`, `controllers/`, `models/`, `routes/`), eliminado `frontend/dist/`
 
 ### Active
-- (none)
+- (ninguno)
 
 ### Blocked
-- (none)
+- (ninguno)
 
 ## Next Move
-1. F2.#6: Apply CSS variables + Barranquilla palette (blue+red+yellow) to all components
-2. F2.#7: Add logo.jpeg to Sidebar and Login
-3. F2.#8: Enhance Hero sections with gradient overlays and decorative shapes
-4. F2.#9: Category badges (book, trophy, etc.) on CampaignCard
+- Ninguno por el momento. El MVP está completo.
 
 ## Relevant Files
-- `frontend/index.html`: Updated with lang=es, Google Fonts, title
-- `frontend/src/style.css`: CSS variables, animations, font config, shimmer utility
-- `frontend/public/favicon.svg`: Replaced purple lightning with blue book icon
-- `frontend/src/components/Toast.js`: New toast notification component
-- `frontend/src/components/Skeleton.js`: New skeleton loader component
-- `frontend/src/components/CampaignCard.js`: Hover lift + will get border-accent color per status
-- `frontend/src/components/StatsCard.js`: Hover lift + border
-- `frontend/src/components/Layout.js`: contentFn called synchronously (non-async)
-- `frontend/src/views/DashboardEstudiante.js`: alert()→Toast, skeleton pattern
-- `frontend/src/views/DashboardSuperAdmin.js`: Skeleton pattern
-- `frontend/src/views/DashboardAdmin.js`: Skeleton pattern
-- `frontend/src/views/Institucion.js`: Skeleton pattern, API_URL import
-- `frontend/src/views/Campañas.js`: Skeleton pattern, date-based filter, institution scope for Admin
-- `frontend/src/views/Estudiantes.js`: Skeleton pattern, fixed rol check, API_URL import
-- `frontend/src/views/MisCampañas.js`: Skeleton pattern
-- `frontend/src/views/Perfil.js`: Skeleton pattern, full profile editor
-- `frontend/src/modules/auth.js`: isAuthenticated loose equality
-- `frontend/src/modules/http.js`: HTTP error throwing
-- `frontend/src/modules/router.js`: Role-based redirects, Estudiante dashboard
-- `backend/server.js`: requireAuth on all data routes, requireRole on admin routes, enrollment scope/criteria validation, GET /api/people/:id, enrollment_count, person_id filter, fixed criteria loop
+- `backend/server.js` — Mock API (~1526 líneas, todos los endpoints)
+- `backend/db.json` — Datos de prueba (213 estudiantes, 15 campañas, 10 instituciones)
+- `backend/seed/` — Generador de datos
+- `frontend/src/main.js` — Route definitions (14 rutas)
+- `frontend/src/views/` — 17 vistas (una por ruta)
+- `frontend/src/components/` — 11 componentes
+- `frontend/src/services/` — 4 servicios API
+- `frontend/src/modules/` — router.js, auth.js, http.js

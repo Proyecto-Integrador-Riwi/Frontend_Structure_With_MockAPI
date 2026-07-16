@@ -356,6 +356,12 @@ app.get('/api/campaigns/available/:personId', requireAuth, (req, res) => {
         const inScope = hasGlobalScope || hasLocationScope || hasInstitutionScope;
         if (!inScope) return false;
 
+        // Filtrar por población objetivo (target_population)
+        const targetPop = campaign.target_population || 'all';
+        if (targetPop === 'students' && studentProfile && studentProfile.status_id !== 1) return false;
+        if (targetPop === 'graduates' && studentProfile && studentProfile.status_id !== 2) return false;
+        if (!studentProfile && targetPop !== 'all') return false;
+
         if (!allCriteria || allCriteria.length === 0) return true;
 
         for (const criteria of allCriteria) {
@@ -469,6 +475,15 @@ app.post('/api/campaigns/:id/enroll', requireAuth, (req, res) => {
     
     if (alreadyEnrolled) {
         return res.status(400).json({ error: 'Ya estás inscrito en esta campaña' });
+    }
+
+    // Validar población objetivo (target_population)
+    const targetPop = campaign.target_population || 'all';
+    if (targetPop === 'students' && studentProfile.status_id !== 1) {
+        return res.status(403).json({ error: 'Esta campaña es solo para estudiantes activos' });
+    }
+    if (targetPop === 'graduates' && studentProfile.status_id !== 2) {
+        return res.status(403).json({ error: 'Esta campaña es solo para egresados' });
     }
 
     // Validar scope
@@ -595,10 +610,17 @@ app.get('/api/campaigns/:id/progress', requireAuth, (req, res) => {
 // ============================================================
 
 app.post('/api/campaigns', requireRole('SUPERADMIN', 'ADMINISTRADOR'), (req, res) => {
-    const { title, type, description, sponsor, start_date, end_date, url_multimedia, pinned } = req.body;
+    const { title, type, description, sponsor, start_date, end_date, url_multimedia, pinned, target_population } = req.body;
 
     if (!title || !type || !start_date) {
         return res.status(400).json({ error: 'Título, tipo y fecha de inicio son requeridos' });
+    }
+
+    // Validar target_population
+    const validTargets = ['all', 'students', 'graduates'];
+    const population = target_population || 'all';
+    if (!validTargets.includes(population)) {
+        return res.status(400).json({ error: 'Población objetivo no válida. Use: all, students o graduates' });
     }
 
     const newId = db.campaigns.length > 0 ? Math.max(...db.campaigns.map(c => c.id)) + 1 : 1;
@@ -613,10 +635,24 @@ app.post('/api/campaigns', requireRole('SUPERADMIN', 'ADMINISTRADOR'), (req, res
         start_date,
         end_date: end_date || null,
         url_multimedia: url_multimedia || null,
-        pinned: pinned === true
+        pinned: pinned === true,
+        target_population: population
     };
 
     db.campaigns.push(campaign);
+
+    // Crear alcance si se especificó scope_type
+    const { scope_type, institution_id, neighborhood_id, localities_id } = req.body;
+    if (scope_type) {
+        const scopeEntry = { id: Date.now(), campaign_id: newId, scope_type };
+        if (scope_type === 'INSTITUTION' && institution_id) scopeEntry.institution_id = parseInt(institution_id);
+        if (scope_type === 'NEIGHBORHOOD' && neighborhood_id) scopeEntry.neighborhood_id = parseInt(neighborhood_id);
+        if (scope_type === 'LOCALITY' && localities_id) scopeEntry.localities_id = parseInt(localities_id);
+        if (scope_type === 'GLOBAL' || scopeEntry.institution_id || scopeEntry.neighborhood_id || scopeEntry.localities_id) {
+            db.campaign_scope.push(scopeEntry);
+        }
+    }
+
     saveDatabase();
 
     res.status(201).json({ data: campaign, message: 'Campaña creada exitosamente' });
@@ -664,11 +700,17 @@ app.put('/api/campaigns/:id', requireRole('SUPERADMIN', 'ADMINISTRADOR'), (req, 
         return res.status(404).json({ error: 'Campaña no encontrada' });
     }
 
-    const allowedFields = ['title', 'type', 'description', 'sponsor', 'start_date', 'end_date', 'url_multimedia', 'pinned'];
+    const allowedFields = ['title', 'type', 'description', 'sponsor', 'start_date', 'end_date', 'url_multimedia', 'pinned', 'target_population'];
     for (const field of allowedFields) {
         if (req.body[field] !== undefined) {
             if (field === 'pinned') {
                 campaign[field] = req.body[field] === true;
+            } else if (field === 'target_population') {
+                const validTargets = ['all', 'students', 'graduates'];
+                if (!validTargets.includes(req.body[field])) {
+                    return res.status(400).json({ error: 'Población objetivo no válida. Use: all, students o graduates' });
+                }
+                campaign[field] = req.body[field];
             } else {
                 campaign[field] = req.body[field];
             }
@@ -744,7 +786,7 @@ app.get('/api/students/campaign/:campaignId', requireAuth, (req, res) => {
 });
 
 app.get('/api/students', requireRole('SUPERADMIN', 'ADMINISTRADOR'), (req, res) => {
-    const { institution_id, status_id, grade_id, gender_id, min_age, max_age } = req.query;
+    const { institution_id, status_id, grade_id, gender_id, min_age, max_age, search } = req.query;
 
     let studentProfiles = [...db.student_profiles];
 
@@ -762,7 +804,7 @@ app.get('/api/students', requireRole('SUPERADMIN', 'ADMINISTRADOR'), (req, res) 
     if (status_id) studentProfiles = studentProfiles.filter(sp => sp.status_id === parseInt(status_id));
     if (grade_id) studentProfiles = studentProfiles.filter(sp => sp.grade_id === parseInt(grade_id));
 
-    const enriched = studentProfiles.map(sp => {
+    let enriched = studentProfiles.map(sp => {
         const person = db.people.find(p => p.id === sp.people_id);
         const institution = db.institutions.find(i => i.id === sp.institution_id);
         const status = db.statuses.find(s => s.id === sp.status_id);
@@ -779,6 +821,11 @@ app.get('/api/students', requireRole('SUPERADMIN', 'ADMINISTRADOR'), (req, res) 
             age = Math.abs(ageDate.getUTCFullYear() - 1970);
         }
 
+        // Obtener última actualización
+        const lastUpdate = db.updates
+            .filter(u => u.people_id === (person ? person.id : null))
+            .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at))[0];
+
         return {
             ...sp,
             person: person ? {
@@ -791,7 +838,8 @@ app.get('/api/students', requireRole('SUPERADMIN', 'ADMINISTRADOR'), (req, res) 
                 document_number: person.document_number,
                 address: person.address,
                 age,
-                gender_id: person.gender_id
+                gender_id: person.gender_id,
+                last_update_date: lastUpdate ? lastUpdate.updated_at : null
             } : null,
             institution: institution ? {
                 id: institution.id,
@@ -801,9 +849,20 @@ app.get('/api/students', requireRole('SUPERADMIN', 'ADMINISTRADOR'), (req, res) 
             grade: grade ? grade.grade : null,
             gender: gender ? gender.name : null,
             locality: locality ? locality.name : null,
-            neighborhood: neighborhood ? neighborhood.name : null
+            neighborhood: neighborhood ? neighborhood.name : null,
+            last_update_date: lastUpdate ? lastUpdate.updated_at : null
         };
     });
+
+    // Búsqueda por nombre o documento
+    if (search) {
+        const term = search.toLowerCase();
+        enriched = enriched.filter(s => {
+            const fullName = `${s.person?.first_name || ''} ${s.person?.last_name || ''}`.toLowerCase();
+            const docNumber = s.person?.document_number || '';
+            return fullName.includes(term) || docNumber.includes(term);
+        });
+    }
 
     // Filtrar por género
     let result = enriched;
@@ -828,7 +887,7 @@ app.get('/api/students', requireRole('SUPERADMIN', 'ADMINISTRADOR'), (req, res) 
 });
 
 // ============================================================
-// RUTAS DE INSTITUCIONES
+// RUTAS DE INSTITUCIONES (CRUD completo)
 // ============================================================
 
 app.get('/api/institutions', requireAuth, (req, res) => {
@@ -859,6 +918,113 @@ app.get('/api/institutions', requireAuth, (req, res) => {
     });
 
     res.json(enriched);
+});
+
+app.post('/api/institutions', requireRole('SUPERADMIN'), (req, res) => {
+    const { institution_name, director, address, neighborhood_id, dane_code } = req.body;
+
+    if (!institution_name || !institution_name.trim()) {
+        return res.status(400).json({ error: 'El nombre de la institución es obligatorio' });
+    }
+    if (!director || !director.trim()) {
+        return res.status(400).json({ error: 'El nombre del director es obligatorio' });
+    }
+    if (!dane_code || !dane_code.trim()) {
+        return res.status(400).json({ error: 'El código DANE es obligatorio' });
+    }
+    if (!neighborhood_id) {
+        return res.status(400).json({ error: 'El barrio es obligatorio' });
+    }
+
+    const existing = db.institutions.find(i => i.institution_name === institution_name.trim());
+    if (existing) {
+        return res.status(400).json({ error: 'Ya existe una institución con ese nombre' });
+    }
+
+    const existingDane = db.institutions.find(i => i.dane_code === dane_code.trim());
+    if (existingDane) {
+        return res.status(400).json({ error: 'Ya existe una institución con ese código DANE' });
+    }
+
+    const newId = db.institutions.length > 0 ? Math.max(...db.institutions.map(i => i.id)) + 1 : 1;
+
+    const institution = {
+        id: newId,
+        institution_name: institution_name.trim(),
+        director: director.trim(),
+        address: address || '',
+        neighborhood_id: parseInt(neighborhood_id),
+        credential_id: null,
+        dane_code: dane_code.trim()
+    };
+
+    db.institutions.push(institution);
+    saveDatabase();
+
+    res.status(201).json({ data: institution, message: 'Institución creada exitosamente' });
+});
+
+app.put('/api/institutions/:id', requireRole('SUPERADMIN'), (req, res) => {
+    const { id } = req.params;
+    const institution = db.institutions.find(i => i.id === parseInt(id));
+
+    if (!institution) {
+        return res.status(404).json({ error: 'Institución no encontrada' });
+    }
+
+    if (req.body.institution_name !== undefined) {
+        if (!req.body.institution_name.trim()) {
+            return res.status(400).json({ error: 'El nombre de la institución no puede estar vacío' });
+        }
+        const existing = db.institutions.find(i => i.institution_name === req.body.institution_name.trim() && i.id !== parseInt(id));
+        if (existing) {
+            return res.status(400).json({ error: 'Ya existe otra institución con ese nombre' });
+        }
+        institution.institution_name = req.body.institution_name.trim();
+    }
+    if (req.body.director !== undefined) {
+        if (!req.body.director.trim()) {
+            return res.status(400).json({ error: 'El nombre del director no puede estar vacío' });
+        }
+        institution.director = req.body.director.trim();
+    }
+    if (req.body.address !== undefined) institution.address = req.body.address;
+    if (req.body.neighborhood_id !== undefined) institution.neighborhood_id = parseInt(req.body.neighborhood_id);
+    if (req.body.dane_code !== undefined) {
+        if (!req.body.dane_code.trim()) {
+            return res.status(400).json({ error: 'El código DANE no puede estar vacío' });
+        }
+        const existingDane = db.institutions.find(i => i.dane_code === req.body.dane_code.trim() && i.id !== parseInt(id));
+        if (existingDane) {
+            return res.status(400).json({ error: 'Ya existe otra institución con ese código DANE' });
+        }
+        institution.dane_code = req.body.dane_code.trim();
+    }
+
+    saveDatabase();
+    res.json({ data: institution, message: 'Institución actualizada exitosamente' });
+});
+
+app.delete('/api/institutions/:id', requireRole('SUPERADMIN'), (req, res) => {
+    const { id } = req.params;
+    const index = db.institutions.findIndex(i => i.id === parseInt(id));
+
+    if (index === -1) {
+        return res.status(404).json({ error: 'Institución no encontrada' });
+    }
+
+    const institution = db.institutions[index];
+
+    // Verificar si tiene estudiantes asociados
+    const studentsCount = db.student_profiles.filter(sp => sp.institution_id === institution.id).length;
+    if (studentsCount > 0) {
+        return res.status(400).json({ error: `No se puede eliminar la institución porque tiene ${studentsCount} estudiante(s) asociado(s)` });
+    }
+
+    db.institutions.splice(index, 1);
+    saveDatabase();
+
+    res.json({ message: 'Institución eliminada exitosamente' });
 });
 
 app.get('/api/institutions/:id', requireAuth, (req, res) => {
@@ -903,6 +1069,11 @@ app.get('/api/institutions/:id/students', requireAuth, (req, res) => {
             age = Math.abs(ageDate.getUTCFullYear() - 1970);
         }
 
+        // Obtener última actualización
+        const lastUpdate = db.updates
+            .filter(u => u.people_id === (person ? person.id : null))
+            .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at))[0];
+
         return {
             ...sp,
             person: person ? {
@@ -915,11 +1086,13 @@ app.get('/api/institutions/:id/students', requireAuth, (req, res) => {
                 document_number: person.document_number,
                 address: person.address,
                 age,
-                gender_id: person.gender_id
+                gender_id: person.gender_id,
+                last_update_date: lastUpdate ? lastUpdate.updated_at : null
             } : null,
             status: status ? status.status : null,
             grade: grade ? grade.grade : null,
-            gender: gender ? gender.name : null
+            gender: gender ? gender.name : null,
+            last_update_date: lastUpdate ? lastUpdate.updated_at : null
         };
     });
 
@@ -1027,8 +1200,77 @@ app.get('/api/dashboard/stats/:institutionId', requireRole('SUPERADMIN', 'ADMINI
 });
 
 // ============================================================
-// RUTAS DE PEOPLE
+// CRUD DE PERSONAS (estudiantes)
 // ============================================================
+
+app.post('/api/people', requireRole('SUPERADMIN', 'ADMINISTRADOR'), (req, res) => {
+    const { first_name, last_name, gender_id, birth_date, email, phone, document_type_id, document_number, address, neighborhood_id, institution_id, grade_id, status_id, start_date } = req.body;
+
+    // Validaciones
+    if (!first_name || !first_name.trim()) return res.status(400).json({ error: 'El nombre es obligatorio' });
+    if (!last_name || !last_name.trim()) return res.status(400).json({ error: 'El apellido es obligatorio' });
+    if (!gender_id) return res.status(400).json({ error: 'El género es obligatorio' });
+    if (!birth_date) return res.status(400).json({ error: 'La fecha de nacimiento es obligatoria' });
+    if (!email || !email.trim()) return res.status(400).json({ error: 'El email es obligatorio' });
+    if (!document_type_id) return res.status(400).json({ error: 'El tipo de documento es obligatorio' });
+    if (!document_number || !document_number.trim()) return res.status(400).json({ error: 'El número de documento es obligatorio' });
+    if (!neighborhood_id) return res.status(400).json({ error: 'El barrio es obligatorio' });
+    if (!institution_id) return res.status(400).json({ error: 'La institución es obligatoria' });
+    if (!grade_id) return res.status(400).json({ error: 'El grado es obligatorio' });
+    if (!status_id) return res.status(400).json({ error: 'El estado es obligatorio' });
+
+    // Validar email único
+    const existingEmail = db.people.find(p => p.email === email.trim());
+    if (existingEmail) return res.status(400).json({ error: 'El email ya está registrado' });
+
+    // Validar documento único
+    const existingDoc = db.people.find(p => p.document_number === document_number.trim());
+    if (existingDoc) return res.status(400).json({ error: 'El número de documento ya está registrado' });
+
+    // Validar que el administrador pertenezca a la institución
+    if (req.user.role === 'ADMINISTRADOR' && parseInt(institution_id) !== req.user.institution_id) {
+        return res.status(403).json({ error: 'No puedes crear estudiantes para otra institución' });
+    }
+
+    const newPersonId = db.people.length > 0 ? Math.max(...db.people.map(p => p.id)) + 1 : 1;
+
+    const person = {
+        id: newPersonId,
+        first_name: first_name.trim(),
+        last_name: last_name.trim(),
+        gender_id: parseInt(gender_id),
+        birth_date,
+        email: email.trim(),
+        phone: phone || '',
+        document_type_id: parseInt(document_type_id),
+        document_number: document_number.trim(),
+        address: address || '',
+        neighborhood_id: parseInt(neighborhood_id),
+        credential_id: null
+    };
+
+    db.people.push(person);
+
+    // Crear student_profile
+    const newProfileId = db.student_profiles.length > 0 ? Math.max(...db.student_profiles.map(sp => sp.id)) + 1 : 1;
+    const studentProfile = {
+        id: newProfileId,
+        people_id: person.id,
+        institution_id: parseInt(institution_id),
+        status_id: parseInt(status_id),
+        grade_id: parseInt(grade_id),
+        start_date: start_date || new Date().toISOString().split('T')[0],
+        end_date: null
+    };
+
+    db.student_profiles.push(studentProfile);
+    saveDatabase();
+
+    res.status(201).json({
+        data: { person, student_profile: studentProfile },
+        message: 'Estudiante creado exitosamente'
+    });
+});
 
 app.put('/api/people/:id', requireAuth, (req, res) => {
     const { id } = req.params;
@@ -1130,9 +1372,15 @@ app.get('/api/people/:id', requireAuth, (req, res) => {
         age = Math.abs(new Date(Date.now() - birthDate.getTime()).getUTCFullYear() - 1970);
     }
 
+    // Obtener última actualización
+    const lastUpdate = db.updates
+        .filter(u => u.people_id === person.id)
+        .sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at))[0];
+
     res.json({
         ...person,
         age,
+        last_update_date: lastUpdate ? lastUpdate.updated_at : null,
         document_type: documentType ? documentType.name : null,
         gender: gender ? gender.name : null,
         neighborhood: neighborhood ? neighborhood.name : null,
@@ -1144,6 +1392,101 @@ app.get('/api/people/:id', requireAuth, (req, res) => {
             institution: institution ? { id: institution.id, name: institution.institution_name } : null
         } : null
     });
+});
+
+// ============================================================
+// CRUD DE CREDENCIALES (usuarios administradores)
+// ============================================================
+
+app.post('/api/credentials', requireRole('SUPERADMIN'), (req, res) => {
+    const { username, password, role_id, institution_id } = req.body;
+
+    if (!username || !username.trim()) return res.status(400).json({ error: 'El nombre de usuario es obligatorio' });
+    if (!password || password.length < 6) return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres' });
+    if (!role_id) return res.status(400).json({ error: 'El rol es obligatorio' });
+
+    const existingUser = db.credentials.find(c => c.username === username.trim());
+    if (existingUser) return res.status(400).json({ error: 'El nombre de usuario ya existe' });
+
+    const role = db.user_roles.find(r => r.id === parseInt(role_id));
+    if (!role) return res.status(400).json({ error: 'Rol no válido' });
+
+    const newId = db.credentials.length > 0 ? Math.max(...db.credentials.map(c => c.id)) + 1 : 1;
+
+    const credential = {
+        id: newId,
+        username: username.trim(),
+        password,
+        role_id: parseInt(role_id)
+    };
+
+    db.credentials.push(credential);
+
+    // Si es administrador, asociar a la institución
+    if (role.name === 'ADMINISTRADOR' && institution_id) {
+        const institution = db.institutions.find(i => i.id === parseInt(institution_id));
+        if (institution) {
+            institution.credential_id = credential.id;
+        }
+    }
+
+    saveDatabase();
+
+    res.status(201).json({
+        data: { id: credential.id, username: credential.username, role: role.name },
+        message: 'Usuario creado exitosamente'
+    });
+});
+
+// ============================================================
+// ENDPOINT PARA EDITAR ESTUDIANTE POR ADMIN
+// ============================================================
+
+app.put('/api/students/:studentProfileId', requireRole('SUPERADMIN', 'ADMINISTRADOR'), (req, res) => {
+    const { studentProfileId } = req.params;
+    const studentProfile = db.student_profiles.find(sp => sp.id === parseInt(studentProfileId));
+
+    if (!studentProfile) {
+        return res.status(404).json({ error: 'Perfil de estudiante no encontrado' });
+    }
+
+    const person = db.people.find(p => p.id === studentProfile.people_id);
+    if (!person) {
+        return res.status(404).json({ error: 'Persona no encontrada' });
+    }
+
+    // Validar que el admin pertenezca a la misma institución
+    if (req.user.role === 'ADMINISTRADOR' && studentProfile.institution_id !== req.user.institution_id) {
+        return res.status(403).json({ error: 'No puedes editar estudiantes de otra institución' });
+    }
+
+    // Actualizar datos de persona
+    const personFields = ['first_name', 'last_name', 'email', 'phone', 'address', 'gender_id', 'birth_date', 'document_type_id', 'document_number', 'neighborhood_id'];
+    for (const field of personFields) {
+        if (req.body[field] !== undefined) {
+            if (field === 'email' && req.body[field] !== person.email) {
+                const existingEmail = db.people.find(p => p.email === req.body[field] && p.id !== person.id);
+                if (existingEmail) return res.status(400).json({ error: 'El email ya está en uso' });
+            }
+            if (field === 'document_number' && req.body[field] !== person.document_number) {
+                const existingDoc = db.people.find(p => p.document_number === req.body[field] && p.id !== person.id);
+                if (existingDoc) return res.status(400).json({ error: 'El número de documento ya está en uso' });
+            }
+            person[field] = req.body[field];
+        }
+    }
+
+    // Actualizar datos del perfil
+    const profileFields = ['grade_id', 'status_id', 'institution_id'];
+    for (const field of profileFields) {
+        if (req.body[field] !== undefined) {
+            studentProfile[field] = parseInt(req.body[field]);
+        }
+    }
+
+    saveDatabase();
+
+    res.json({ data: person, message: 'Estudiante actualizado exitosamente' });
 });
 
 // ============================================================
@@ -1166,9 +1509,15 @@ app.listen(PORT, () => {
     console.log(`   POST /api/campaigns/:id/enroll`);
     console.log(`   GET  /api/students`);
     console.log(`   GET  /api/students/campaign/:campaignId`);
+    console.log(`   PUT  /api/students/:studentProfileId`);
+    console.log(`   POST /api/people`);
     console.log(`   GET  /api/institutions`);
+    console.log(`   POST /api/institutions`);
+    console.log(`   PUT  /api/institutions/:id`);
+    console.log(`   DELETE /api/institutions/:id`);
     console.log(`   GET  /api/institutions/:id`);
     console.log(`   GET  /api/institutions/:id/students`);
+    console.log(`   POST /api/credentials`);
     console.log(`   GET  /api/dashboard/stats`);
     console.log(`   GET  /api/dashboard/stats/:institutionId`);
     console.log(`   PUT  /api/people/:id`);

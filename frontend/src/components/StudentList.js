@@ -16,7 +16,8 @@ const StudentList = {
     render(options = {}) {
         const {
             students = [],
-            onStudentClick = () => {}
+            onStudentClick = () => {},
+            showUpdateIndicator = false
         } = options;
 
         const container = document.createElement('div');
@@ -49,6 +50,8 @@ const StudentList = {
             return gradeB - gradeA;
         });
 
+        this.showUpdateIndicator = showUpdateIndicator;
+
         sortedGrades.forEach(grade => {
             const gradeStudents = grouped[grade];
             
@@ -66,7 +69,7 @@ const StudentList = {
                 </div>
                 
                 <div class="divide-y divide-gray-100">
-                    ${gradeStudents.map(student => this._renderStudentItem(student)).join('')}
+                    ${gradeStudents.map(student => this._renderStudentItem(student, showUpdateIndicator)).join('')}
                 </div>
             `;
 
@@ -101,7 +104,7 @@ const StudentList = {
      * @returns {string} HTML del elemento
      * @private
      */
-    _renderStudentItem(student) {
+    _renderStudentItem(student, showIndicator = false) {
         const person = student.person || {};
         const initials = person.first_name && person.last_name
             ? `${person.first_name.charAt(0)}${person.last_name.charAt(0)}`
@@ -111,6 +114,9 @@ const StudentList = {
         const avatarPalette = ['bg-blue-500', 'bg-emerald-500', 'bg-violet-500', 'bg-amber-500', 'bg-rose-500', 'bg-cyan-500', 'bg-indigo-500', 'bg-teal-500'];
         const avatarColor = avatarPalette[(student.id || 0) % avatarPalette.length];
 
+        // Indicador de actualización (semáforo - HU-14)
+        const updateColor = student._updateStatusColor || this._getUpdateStatusColor(student);
+
         return `
             <div 
                 class="flex items-center p-4 hover:bg-gray-50 cursor-pointer transition-colors"
@@ -119,6 +125,14 @@ const StudentList = {
                 role="button"
                 aria-label="${person.first_name || ''} ${person.last_name || ''}, ${student.grade || 'sin grado'}"
             >
+                ${showIndicator ? `
+                <!-- Indicador semáforo -->
+                <div class="flex-shrink-0 mr-3 flex flex-col items-center">
+                    <div class="w-3 h-3 rounded-full bg-${updateColor}-500" 
+                         title="${updateColor === 'green' ? 'Actualizado' : updateColor === 'yellow' ? 'Por actualizar' : 'Desactualizado'}"></div>
+                </div>
+                ` : ''}
+
                 <!-- Avatar -->
                 <div class="flex-shrink-0">
                     <div class="w-12 h-12 rounded-full ${avatarColor} flex items-center justify-center text-white font-bold text-lg">
@@ -171,6 +185,14 @@ const StudentList = {
                                 ${student.institution.name}
                             </span>
                         ` : ''}
+                        ${showIndicator && (person.last_update_date || student.last_update_date) ? `
+                            <span class="flex items-center text-gray-400">
+                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                ${this._formatDate(person.last_update_date || student.last_update_date)}
+                            </span>
+                        ` : ''}
                     </div>
                 </div>
                 
@@ -182,6 +204,32 @@ const StudentList = {
                 </div>
             </div>
         `;
+    },
+
+    /**
+     * Determina el color del semáforo según la última actualización
+     */
+    _getUpdateStatusColor(student) {
+        const lastUpd = student.last_update_date || student.person?.last_update_date;
+        if (!lastUpd) return 'red';
+        const daysSince = Math.floor((Date.now() - new Date(lastUpd).getTime()) / (1000 * 60 * 60 * 24));
+        if (daysSince <= 30) return 'green';
+        if (daysSince <= 90) return 'yellow';
+        return 'red';
+    },
+
+    /**
+     * Formatea una fecha para mostrar
+     */
+    _formatDate(dateStr) {
+        if (!dateStr) return '';
+        try {
+            return new Intl.DateTimeFormat('es-CO', {
+                day: '2-digit', month: 'short', year: 'numeric'
+            }).format(new Date(dateStr));
+        } catch (e) {
+            return dateStr;
+        }
     }
 };
 

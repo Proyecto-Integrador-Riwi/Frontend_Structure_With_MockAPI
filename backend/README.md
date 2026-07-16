@@ -1,36 +1,21 @@
-# Backend Mock - NexoEdu
+# Backend Mock — NexoEdu
 
-## IMPORTANTE
-
-Este backend es **PROVISIONAL** y está diseñado únicamente para el desarrollo del frontend mientras el equipo backend completa los endpoints reales con FastAPI + PostgreSQL.
-
-**Cuando el backend real esté listo, eliminar toda esta carpeta y seguir la [Guía de Migración](./MIGRATION_GUIDE.md).**
+> **PROVISIONAL** — Solo para desarrollo del frontend.  
+> Cuando el backend real esté listo, eliminar esta carpeta y seguir la [Guía de Migración](./MIGRATION_GUIDE.md).
 
 ---
 
 ## Inicio Rápido
 
-### 1. Generar base de datos de prueba
-
 ```bash
-npm run db:seed
+# 1. Generar datos de prueba
+npm run seed
+
+# 2. Iniciar servidor mock
+npm start
 ```
 
-Esto generará el archivo `db.json` con todos los datos de prueba.
-
-### 2. Iniciar servidor mock
-
-```bash
-npm run dev:mock
-```
-
-El servidor estará disponible en `http://localhost:3001`.
-
-### 3. Iniciar frontend
-
-```bash
-npm run dev:frontend
-```
+El servidor corre en `http://localhost:3001`.
 
 ---
 
@@ -38,139 +23,134 @@ npm run dev:frontend
 
 | Rol | Usuario | Contraseña |
 |-----|---------|------------|
-| SuperAdmin | admin_global | 123456 |
-| Admin (Institución 1) | admin_n1 | 123456 |
-| Admin (Institución 2) | admin_n2 | 123456 |
-| Admin (Institución 3) | admin_n3 | 123456 |
-| ... | ... | 123456 |
-| Estudiante | (email sin @) | 123456 |
+| SuperAdmin | `admin_global` | `123456` |
+| Admin (Inst. 1) | `admin_n1` | `123456` |
+| Admin (Inst. 2) | `admin_n2` | `123456` |
+| Admin (Inst. 3–10) | `admin_n3` … `admin_n10` | `123456` |
+| Estudiante | `(email sin @)` | `123456` |
 
 ---
 
-## Endpoints Disponibles
+## Endpoints
 
 ### Autenticación
-- `POST /api/auth/login` - Login
-- `GET /api/auth/me` - Usuario actual
+| Método | Ruta | Auth | Roles |
+|--------|------|------|-------|
+| POST | `/api/auth/login` | — | — |
+| GET | `/api/auth/me` | Sí | Todos |
 
 ### Campañas
-- `GET /api/campaigns` - Lista de campañas (requiere auth; filtros: `active`, `institution_id`, `scope_type`, `person_id`)
-- `GET /api/campaigns/active` - Campañas activas (requiere auth)
-- `GET /api/campaigns/pinned` - Campañas fijadas (requiere auth)
-- `GET /api/campaigns/available/:personId` - Campañas disponibles (requiere auth)
-- `POST /api/campaigns/:id/enroll` - Inscribirse (requiere auth + validación de scope y criteria)
+| Método | Ruta | Auth | Roles |
+|--------|------|------|-------|
+| GET | `/api/campaigns` | Sí | Todos |
+| GET | `/api/campaigns/active` | Sí | Todos |
+| GET | `/api/campaigns/pinned` | Sí | Todos |
+| GET | `/api/campaigns/available/:personId` | Sí | Todos |
+| GET | `/api/campaigns/:id` | Sí | Todos |
+| POST | `/api/campaigns` | Sí | SUPERADMIN, ADMINISTRADOR |
+| PUT | `/api/campaigns/:id` | Sí | SUPERADMIN, ADMINISTRADOR |
+| DELETE | `/api/campaigns/:id` | Sí | SUPERADMIN, ADMINISTRADOR |
+| POST | `/api/campaigns/:id/enroll` | Sí | Todos |
 
 ### Estudiantes
-- `GET /api/students` - Lista de estudiantes (requiere rol SUPERADMIN o ADMINISTRADOR)
-- `GET /api/students/campaign/:campaignId` - Estudiantes por campaña (requiere auth)
-
-### Instituciones
-- `GET /api/institutions` - Lista de instituciones (requiere auth)
-- `GET /api/institutions/:id` - Detalle de institución (requiere auth)
-- `GET /api/institutions/:id/students` - Estudiantes de institución (requiere auth)
-
-### Dashboard
-- `GET /api/dashboard/stats/:institutionId?` - Estadísticas (requiere rol SUPERADMIN o ADMINISTRADOR)
+| Método | Ruta | Auth | Roles |
+|--------|------|------|-------|
+| GET | `/api/students` | Sí | SUPERADMIN, ADMINISTRADOR |
+| GET | `/api/students/campaign/:campaignId` | Sí | Todos |
+| PUT | `/api/students/:studentProfileId` | Sí | SUPERADMIN, ADMINISTRADOR |
 
 ### Personas
-- `GET /api/people/:id` - Detalle de persona (requiere auth)
-- `PUT /api/people/:id` - Actualizar persona (requiere auth; estudiantes solo con campaña activa)
+| Método | Ruta | Auth | Roles |
+|--------|------|------|-------|
+| POST | `/api/people` | Sí | SUPERADMIN, ADMINISTRADOR |
+| GET | `/api/people/:id` | Sí | Todos |
+| PUT | `/api/people/:id` | Sí | Todos |
+
+### Instituciones
+| Método | Ruta | Auth | Roles |
+|--------|------|------|-------|
+| GET | `/api/institutions` | Sí | Todos |
+| GET | `/api/institutions/:id` | Sí | Todos |
+| GET | `/api/institutions/:id/students` | Sí | Todos |
+| POST | `/api/institutions` | Sí | SUPERADMIN |
+| PUT | `/api/institutions/:id` | Sí | SUPERADMIN |
+| DELETE | `/api/institutions/:id` | Sí | SUPERADMIN |
+
+### Credenciales
+| Método | Ruta | Auth | Roles |
+|--------|------|------|-------|
+| POST | `/api/credentials` | Sí | SUPERADMIN |
+
+### Dashboard
+| Método | Ruta | Auth | Roles |
+|--------|------|------|-------|
+| GET | `/api/dashboard/stats` | Sí | SUPERADMIN, ADMINISTRADOR |
+| GET | `/api/dashboard/stats/:institutionId` | Sí | SUPERADMIN, ADMINISTRADOR |
 
 ### Catálogos
-- `GET /api/user-roles`
-- `GET /api/document-types`
-- `GET /api/genders`
-- `GET /api/grades`
-- `GET /api/statuses`
-- `GET /api/localities`
-- `GET /api/neighborhoods`
+| Método | Ruta |
+|--------|------|
+| GET | `/api/user-roles` |
+| GET | `/api/document-types` |
+| GET | `/api/genders` |
+| GET | `/api/grades` |
+| GET | `/api/statuses` |
+| GET | `/api/localities` |
+| GET | `/api/neighborhoods` |
 
 ---
 
-## Datos de Prueba
+## Parámetros de Consulta
 
-### Localidades de Barranquilla
-1. Norte
-2. Nororiente
-3. Occidente
-4. Oriente
-5. Sur
-6. Suroccidente
+### `GET /api/campaigns`
+| Parámetro | Tipo | Descripción |
+|-----------|------|-------------|
+| `active` | `true` | Solo campañas vigentes |
+| `institution_id` | int | Filtrar por institución |
+| `scope_type` | string | GLOBAL, INSTITUTION, LOCALITY, NEIGHBORHOOD |
+| `person_id` | int | Campañas en las que la persona está inscrita |
 
-### Instituciones (10)
-1. I.E.D. Normal Superior de Barranquilla
-2. I.E.D. Universidad del Norte
-3. I.E.D. Colegio San José
-4. I.E.D. Liceo Departamental
-5. I.E.D. Institución Educativa Distrital Juan B. Alberdi
-6. I.E.D. Institución Educativa Distrital Técnico Industrial
-7. I.E.D. Institución Educativa Distrital La Merced
-8. I.E.D. Institución Educativa Distrital Florida Blanca
-9. I.E.D. Institución Educativa Distrital Alberto Mercado
-10. I.E.D. Institución Educativa Distrital Salud Maldonado
-
-### Campañas (15)
-- Campañas globales, institucionales y por localidad
-- Diferentes tipos: General, Académico, Deportivo, Cultural, etc.
-- Con filtros por edad, género, grado y estado
+### `GET /api/students`
+| Parámetro | Tipo | Descripción |
+|-----------|------|-------------|
+| `institution_id` | int | Filtrar por institución |
+| `status_id` | int | 1=Activo, 2=Graduado, 3=Retirado |
+| `grade_id` | int | Filtrar por grado |
+| `gender_id` | int | 1=M, 2=F, 3=NB |
+| `min_age` | int | Edad mínima |
+| `max_age` | int | Edad máxima |
+| `search` | string | Búsqueda por nombre o documento |
 
 ---
 
-## Estructura de Archivos
+## Estructura del Proyecto
 
 ```
 backend/
-├── db.json              # Base de datos JSON (generado)
-├── server.js            # Servidor Express mock
-├── MIGRATION_GUIDE.md   # Guía de migración al backend real
+├── server.js         # Servidor Express mock (~1500 líneas)
+├── db.json           # Base de datos JSON (generado por seed)
 ├── seed/
-│   ├── index.js         # Script generador de datos
-│   ├── data/
-│   │   ├── localidades.js
-│   │   ├── barrios.js
-│   │   ├── instituciones.js
-│   │   └── campanas.js
+│   ├── index.js      # Script generador de datos
+│   ├── data/         # Datos estáticos (localidades, barrios, instituciones, campañas)
 │   └── utils/
 │       └── generators.js
-└── package.json
-```
-
----
-
-## Notas para el Frontend
-
-### URLs de Imágenes
-El frontend busca las siguientes imágenes (debes crearlas o cambiar las rutas):
-
-- `/src/assets/alcaldia-hero.jpg` - Hero del SuperAdmin
-- `/src/assets/institution-hero.jpg` - Hero de Institución
-- `/src/assets/institution-logo.png` - Logo de Institución
-
-### Autenticación
-El frontend envía el token en el header Authorization:
-```
-Authorization: Bearer <token>
+├── MIGRATION_GUIDE.md
+├── package.json
+└── node_modules/
 ```
 
 ---
 
 ## Solución de Problemas
 
-### Error: "Credenciales incorrectas"
-Verifica que estés usando las credenciales correctas de la tabla de arriba.
+**Error "Credenciales incorrectas"** — Verifica usuario/contraseña en la tabla de arriba.
 
-### Error: "No autorizado"
-El token puede haber expirado. Cierra sesión y vuelve a iniciar.
+**Error "No autorizado"** — El token expiró o no se envió. Vuelve a iniciar sesión.
 
-### Error: "No hay campaña activa"
-Solo puedes actualizar datos cuando hay una campaña activa para tu perfil.
+**Error EADDRINUSE (puerto 3001 en uso):**
+```bash
+netstat -ano | findstr :3001
+taskkill /PID <PID> /F
+```
 
----
-
-## Próximos Pasos
-
-1. Implementar los endpoints reales en FastAPI
-2. Configurar PostgreSQL
-3. Implementar JWT real
-4. Eliminar este backend mock
-5. Seguir la [Guía de Migración](./MIGRATION_GUIDE.md)
+**Error "db.json not found"** — Ejecuta `npm run seed` para regenerar los datos.
