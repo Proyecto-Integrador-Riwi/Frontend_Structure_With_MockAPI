@@ -24,10 +24,11 @@ El servidor corre en `http://localhost:3001`.
 | Rol | Usuario | Contraseña |
 |-----|---------|------------|
 | SuperAdmin | `admin_global` | `123456` |
-| Admin (Inst. 1) | `admin_n1` | `123456` |
-| Admin (Inst. 2) | `admin_n2` | `123456` |
-| Admin (Inst. 3–10) | `admin_n3` … `admin_n10` | `123456` |
-| Estudiante | `(email sin @)` | `123456` |
+| Admin (Normal Superior) | `admin_n1` | `123456` |
+| Admin (Uninorte) | `admin_n2` | `123456` |
+| Estudiante (M, 11°, activo) | `carlos.garcia4` | `123456` |
+| Estudiante (F, 10°, activa) | `maria.lopez5` | `123456` |
+| Estudiante (M, 11°, egresado) | `jose.rodriguez6` | `123456` |
 
 ---
 
@@ -38,6 +39,8 @@ El servidor corre en `http://localhost:3001`.
 |--------|------|------|-------|
 | POST | `/api/auth/login` | — | — |
 | GET | `/api/auth/me` | Sí | Todos |
+| POST | `/api/auth/change-password` | Sí | Todos |
+| POST | `/api/auth/forgot-password` | — | — |
 
 ### Campañas
 | Método | Ruta | Auth | Roles |
@@ -60,11 +63,11 @@ El servidor corre en `http://localhost:3001`.
 | PUT | `/api/students/:studentProfileId` | Sí | SUPERADMIN, ADMINISTRADOR |
 
 ### Personas
-| Método | Ruta | Auth | Roles |
-|--------|------|------|-------|
-| POST | `/api/people` | Sí | SUPERADMIN, ADMINISTRADOR |
-| GET | `/api/people/:id` | Sí | Todos |
-| PUT | `/api/people/:id` | Sí | Todos |
+| Método | Ruta | Auth | Roles | Notas |
+|--------|------|------|-------|-------|
+| POST | `/api/people` | Sí | SUPERADMIN, ADMINISTRADOR | Requiere `username`+`password` — crea credential interno (role_id=3) |
+| GET | `/api/people/:id` | Sí | Todos | Incluye `credential_username` si existe |
+| PUT | `/api/people/:id` | Sí | ESTUDIANTE | Solo permite editar con campaña activa. Campos: first_name, last_name, email, phone, address |
 
 ### Instituciones
 | Método | Ruta | Auth | Roles |
@@ -75,10 +78,13 @@ El servidor corre en `http://localhost:3001`.
 | POST | `/api/institutions` | Sí | SUPERADMIN |
 | PUT | `/api/institutions/:id` | Sí | SUPERADMIN |
 | DELETE | `/api/institutions/:id` | Sí | SUPERADMIN |
+| PATCH | `/api/institutions/:id/toggle-active` | Sí | SUPERADMIN |
 
 ### Credenciales
 | Método | Ruta | Auth | Roles |
 |--------|------|------|-------|
+| GET | `/api/credentials` | Sí | SUPERADMIN |
+| PUT | `/api/credentials/:id/toggle-active` | Sí | SUPERADMIN |
 | POST | `/api/credentials` | Sí | SUPERADMIN |
 
 ### Dashboard
@@ -86,6 +92,7 @@ El servidor corre en `http://localhost:3001`.
 |--------|------|------|-------|
 | GET | `/api/dashboard/stats` | Sí | SUPERADMIN, ADMINISTRADOR |
 | GET | `/api/dashboard/stats/:institutionId` | Sí | SUPERADMIN, ADMINISTRADOR |
+| GET | `/api/campaigns/:id/progress` | Sí | SUPERADMIN, ADMINISTRADOR |
 
 ### Catálogos
 | Método | Ruta |
@@ -127,7 +134,8 @@ El servidor corre en `http://localhost:3001`.
 
 ```
 backend/
-├── server.js         # Servidor Express mock (~1500 líneas)
+├── server.js         # Servidor Express mock (~1190 líneas)
+├── utils.js          # Helpers compartidos (enrich, stats, scope, criteria)
 ├── db.json           # Base de datos JSON (generado por seed)
 ├── seed/
 │   ├── index.js      # Script generador de datos

@@ -1,3 +1,4 @@
+/** Servicio de autenticacion - login y recuperacion de contrasena. */
 import http from '../modules/http.js';
 
 export function login(username, password) {

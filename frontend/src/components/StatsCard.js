@@ -1,3 +1,4 @@
+/** Tarjeta de estadistica con icono, valor y label. Usa IntersectionObserver para animar el conteo. */
 function animateValue(el, rawValue, duration = 800) {
     const match = String(rawValue).match(/^([\d.]+)(.*)$/);
     if (!match) { el.textContent = rawValue; return; }

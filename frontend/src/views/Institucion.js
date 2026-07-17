@@ -1,3 +1,4 @@
+/** Detalle de institucion - estudiantes, informacion y acciones. SUPERADMIN/ADMIN. */
 import Auth from "../modules/auth";
 import http from "../modules/http";
 import Layout from "../components/Layout";
@@ -5,6 +6,8 @@ import CampaignCard from "../components/CampaignCard";
 import FilterBar from "../components/FilterBar";
 import StudentList from "../components/StudentList";
 import Skeleton from "../components/Skeleton";
+import { createErrorView } from "../utils/errorHandler";
+import { isSuperAdmin } from "../utils/permissions";
 import { applyStudentFilters } from "../utils/filters";
 import * as InstitutionService from "../services/institutionService";
 import * as CampaignService from "../services/campaignService";
@@ -47,9 +50,9 @@ const Institucion = {
                     ]);
 
                     const [grades, genders, statuses] = await Promise.all([
-                        http.get('api/grades').then(r => r.json()),
-                        http.get('api/genders').then(r => r.json()),
-                        http.get('api/statuses').then(r => r.json())
+                        http.getJSON('api/grades'),
+                        http.getJSON('api/genders'),
+                        http.getJSON('api/statuses')
                     ]);
 
                     content.innerHTML = `
@@ -58,6 +61,14 @@ const Institucion = {
                                 <div class="text-center">
                                     <h1 class="text-3xl md:text-4xl font-bold text-white mb-2">${institution.institution_name}</h1>
                                     <p class="text-blue-200">${institution.address || ""}</p>
+                                    ${isSuperAdmin() ? `
+                                    <a data-link href="/instituciones/${institution.id}/editar" class="inline-flex items-center gap-1.5 mt-3 px-4 py-2 rounded-lg bg-white/20 text-white text-sm font-medium hover:bg-white/30 transition">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                        </svg>
+                                        Editar institución
+                                    </a>
+                                    ` : ""}
                                 </div>
                             </div>
                         </section>
@@ -116,7 +127,8 @@ const Institucion = {
 
                 } catch (err) {
                     console.error(err);
-                    content.innerHTML = `<div class="text-center py-20 text-red-500">Error al cargar datos</div>`;
+                    content.innerHTML = "";
+                    content.appendChild(createErrorView("Error al cargar datos"));
                 }
             })();
 

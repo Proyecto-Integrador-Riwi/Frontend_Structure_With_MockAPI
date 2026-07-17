@@ -18,8 +18,8 @@ import EstudianteDetalle from './views/EstudianteDetalle'
 import CrearEstudiante from './views/CrearEstudiante'
 import MisCampañas from './views/MisCampañas'
 import Perfil from './views/Perfil'
+import PerfilEdit from './views/PerfilEdit'
 import Configuracion from './views/Configuracion'
-
 const routes = {
     "/": { view: Login, protected: false },
 
@@ -55,15 +55,16 @@ const routes = {
     "/campanas/:id": { view: CampañaDetalle, protected: true, roles: ["SUPERADMIN", "ADMINISTRADOR"] },
     "/campanas/:id/editar": { view: CampañaForm, protected: true, roles: ["SUPERADMIN", "ADMINISTRADOR"] },
 
-    // Estudiantes (HU-04, HU-05, HU-06)
-    "/estudiantes": { view: Estudiantes, protected: true, roles: ["SUPERADMIN", "ADMINISTRADOR"] },
-    "/estudiantes/crear": { view: CrearEstudiante, protected: true, roles: ["SUPERADMIN", "ADMINISTRADOR"] },
+    // Estudiantes (HU-04, HU-05, HU-06) — solo ADMINISTRADOR gestiona
+    "/estudiantes": { view: Estudiantes, protected: true, roles: ["ADMINISTRADOR"] },
+    "/estudiantes/crear": { view: CrearEstudiante, protected: true, roles: ["ADMINISTRADOR"] },
     "/estudiante/:id": { view: EstudianteDetalle, protected: true, roles: ["SUPERADMIN", "ADMINISTRADOR"] },
-    "/estudiante/:id/editar": { view: EstudianteDetalle, protected: true, roles: ["SUPERADMIN", "ADMINISTRADOR"] },
+    "/estudiante/:id/editar": { view: EstudianteDetalle, protected: true, roles: ["ADMINISTRADOR"] },
 
     // Estudiante (portal personal)
     "/mis-campanas": { view: MisCampañas, protected: true, roles: ["ESTUDIANTE"] },
-    "/perfil": { view: Perfil, protected: true },
+    "/perfil": { view: Perfil, protected: true, roles: ["ADMINISTRADOR", "ESTUDIANTE"] },
+    "/perfil/editar": { view: PerfilEdit, protected: true, roles: ["ESTUDIANTE"] },
     "/configuracion": { view: Configuracion, protected: true },
 };
 

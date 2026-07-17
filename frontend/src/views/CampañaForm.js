@@ -1,3 +1,4 @@
+/** Formulario de creación/edición de campañas. El alcance se deriva del rol (SUPERADMIN→GLOBAL, ADMIN→INSTITUTION). */
 import Auth from "../modules/auth";
 import Layout from "../components/Layout";
 import * as CampaignService from "../services/campaignService";
@@ -24,13 +25,6 @@ function getTargetPopulationOptions() {
         { value: "all", label: "Ambos" },
     ];
 }
-
-const SCOPE_TYPES = [
-    { value: "GLOBAL", label: "Global" },
-    { value: "INSTITUTION", label: "Por institución" },
-    { value: "LOCALITY", label: "Por localidad" },
-    { value: "NEIGHBORHOOD", label: "Por barrio" },
-];
 
 const CampanaForm = {
     async render(params = {}) {
@@ -118,15 +112,6 @@ const CampanaForm = {
                             </div>
 
                             <div>
-                                <label for="cam-scope" class="block text-sm font-medium text-gray-700 mb-1">Alcance *</label>
-                                <select id="cam-scope" required
-                                    class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
-                                    ${SCOPE_TYPES.map(s => `<option value="${s.value}">${s.label}</option>`).join("")}
-                                </select>
-                                <p class="text-xs text-red-500 mt-1 hidden" id="cam-scope-error"></p>
-                            </div>
-
-                            <div>
                                 <label class="flex items-center gap-2">
                                     <input id="cam-pinned" type="checkbox" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
                                     <span class="text-sm text-gray-700">Fijar campaña (mostrar al inicio)</span>
@@ -138,6 +123,7 @@ const CampanaForm = {
                                 <input id="cam-url" type="url"
                                     class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                                     placeholder="https://ejemplo.com/imagen.jpg" />
+                                <p class="text-xs text-red-500 mt-1 hidden" id="cam-url-error"></p>
                             </div>
                         </div>
 
@@ -164,9 +150,6 @@ const CampanaForm = {
                         content.querySelector("#cam-url").value = campaign.url_multimedia || "";
                         content.querySelector("#cam-pinned").checked = campaign.pinned === true;
                         content.querySelector("#cam-target").value = campaign.target_population || "all";
-                        if (campaign.scope && campaign.scope[0]) {
-                            content.querySelector("#cam-scope").value = campaign.scope[0].scope_type || "GLOBAL";
-                        }
                     } catch (err) {
                         Toast.error("Error al cargar la campaña: " + err.message);
                     }
@@ -200,13 +183,22 @@ const CampanaForm = {
                 hideError("#cam-title-error");
                 hideError("#cam-type-error");
                 hideError("#cam-start-error");
-                hideError("#cam-scope-error");
                 hideError("#cam-target-error");
+                hideError("#cam-url-error");
+
+                const urlVal = content.querySelector("#cam-url").value.trim();
+                if (urlVal && !urlVal.match(/^https?:\/\/.+/)) {
+                    showError("#cam-url-error", "Ingresa una URL válida (ej. https://ejemplo.com/imagen.jpg)");
+                }
+
+                const endVal = content.querySelector("#cam-end").value;
+                if (endVal && startVal && endVal < startVal) {
+                    showError("#cam-start-error", "La fecha de inicio no puede ser después de la fecha de fin");
+                }
 
                 if (!titleVal) showError("#cam-title-error", "El título es obligatorio");
                 if (!typeVal) showError("#cam-type-error", "Selecciona un tipo");
                 if (!startVal) showError("#cam-start-error", "La fecha de inicio es obligatoria");
-                if (!content.querySelector("#cam-scope").value) showError("#cam-scope-error", "Selecciona un alcance");
                 if (!content.querySelector("#cam-target").value) showError("#cam-target-error", "Selecciona la población objetivo");
 
                 if (!valid) return;
@@ -223,7 +215,7 @@ const CampanaForm = {
                     end_date: content.querySelector("#cam-end").value || null,
                     url_multimedia: content.querySelector("#cam-url").value.trim() || null,
                     pinned: content.querySelector("#cam-pinned").checked,
-                    target_population: content.querySelector("#cam-target").value,
+                    target_population: content.querySelector("#cam-target").value
                 };
 
                 try {

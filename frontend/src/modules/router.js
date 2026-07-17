@@ -1,3 +1,4 @@
+/** Router SPA client-side con parametros de ruta, proteccion por roles y error boundary. */
 import Auth from "./auth";
 
 const Router = {

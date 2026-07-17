@@ -1,8 +1,10 @@
+/** Campanas en las que el estudiante esta inscrito. Solo ESTUDIANTE. */
 import Auth from "../modules/auth";
 import Layout from "../components/Layout";
 import CampaignCard from "../components/CampaignCard";
 import Skeleton from "../components/Skeleton";
 import EmptyState from "../components/EmptyState";
+import { createErrorView } from "../utils/errorHandler";
 import * as CampaignService from "../services/campaignService";
 
 const MisCampanas = {
@@ -53,15 +55,8 @@ const MisCampanas = {
 
                 } catch (err) {
                     console.error(err);
-                    content.innerHTML = `
-                        <div class="flex flex-col items-center justify-center py-20 text-center content-fade-in">
-                            <svg class="w-16 h-16 text-red-300 mb-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            <p class="text-gray-500 mb-4">Error al cargar campañas</p>
-                            <button class="btn-primary" onclick="window.location.reload()">Reintentar</button>
-                        </div>
-                    `;
+                    content.innerHTML = "";
+                    content.appendChild(createErrorView("Error al cargar campañas"));
                 }
             })();
 

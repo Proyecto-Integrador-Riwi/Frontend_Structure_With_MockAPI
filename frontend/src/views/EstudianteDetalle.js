@@ -1,9 +1,13 @@
+/** Detalle de estudiante - vista de informacion + edicion por ADMIN. Muestra credencial si existe. */
 import Auth from "../modules/auth";
 import http from "../modules/http";
 import Layout from "../components/Layout";
 import Skeleton from "../components/Skeleton";
 import EmptyState from "../components/EmptyState";
 import Toast from "../components/Toast";
+import { createErrorView } from "../utils/errorHandler";
+import { formatDate, getUpdateStatus } from "../utils/dates";
+import { isAdmin } from "../utils/permissions";
 import * as CampaignService from "../services/campaignService";
 import * as StudentService from "../services/studentService";
 
@@ -42,22 +46,15 @@ const EstudianteDetalle = {
 
                     // Fetch catalogs for edit mode
                     const [grades, genders, statuses, docTypes, neighborhoods] = await Promise.all([
-                        http.get('api/grades').then(r => r.json()).catch(() => []),
-                        http.get('api/genders').then(r => r.json()).catch(() => []),
-                        http.get('api/statuses').then(r => r.json()).catch(() => []),
-                        http.get('api/document-types').then(r => r.json()).catch(() => []),
-                        http.get('api/neighborhoods').then(r => r.json()).catch(() => [])
+                        http.getJSON('api/grades').catch(() => []),
+                        http.getJSON('api/genders').catch(() => []),
+                        http.getJSON('api/statuses').catch(() => []),
+                        http.getJSON('api/document-types').catch(() => []),
+                        http.getJSON('api/neighborhoods').catch(() => [])
                     ]);
 
-                    const formatDate = (dateStr) => {
-                        if (!dateStr) return "—";
-                        return new Intl.DateTimeFormat("es-CO", {
-                            day: "2-digit", month: "short", year: "numeric"
-                        }).format(new Date(dateStr));
-                    };
-
                     const user = Auth.getUser();
-                    const isAdmin = user?.rol === "SUPERADMIN" || user?.rol === "ADMINISTRADOR";
+                    const userIsAdmin = isAdmin();
                     const isEditing = window.location.pathname.endsWith("/editar");
 
                     const initials = person.first_name && person.last_name
@@ -66,23 +63,12 @@ const EstudianteDetalle = {
                     const avatarPalette = ["bg-blue-500", "bg-emerald-500", "bg-violet-500", "bg-amber-500", "bg-rose-500", "bg-cyan-500", "bg-indigo-500", "bg-teal-500"];
                     const avatarColor = avatarPalette[(person.id || 0) % avatarPalette.length];
 
-                    // Determinar estado de actualización (semáforo)
                     const lastUpdate = person.last_update_date;
-                    let updateStatus = { color: "bg-red-500", label: "Nunca actualizado", textColor: "text-red-700" };
-                    if (lastUpdate) {
-                        const daysSinceUpdate = Math.floor((Date.now() - new Date(lastUpdate).getTime()) / (1000 * 60 * 60 * 24));
-                        if (daysSinceUpdate <= 30) {
-                            updateStatus = { color: "bg-green-500", label: "Actualizado recientemente", textColor: "text-green-700" };
-                        } else if (daysSinceUpdate <= 90) {
-                            updateStatus = { color: "bg-yellow-500", label: "Actualizado hace más de 30 días", textColor: "text-yellow-700" };
-                        } else {
-                            updateStatus = { color: "bg-red-500", label: "Desactualizado", textColor: "text-red-700" };
-                        }
-                    }
+                    const updateStatus = getUpdateStatus(lastUpdate);
 
                     const sp = person.student_profile || {};
 
-                    if (isEditing && isAdmin) {
+                    if (isEditing && userIsAdmin) {
                         // MODO EDICIÓN
                         content.innerHTML = `
                             <div class="content-fade-in">
@@ -184,14 +170,31 @@ const EstudianteDetalle = {
                             const submitBtn = content.querySelector("#edit-submit");
                             const msg = content.querySelector("#edit-message");
                             msg.classList.add("hidden");
+
+                            const email = content.querySelector("#edit-email").value.trim();
+                            const phone = content.querySelector("#edit-phone").value.trim();
+
+                            if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                                msg.textContent = "El formato del email no es válido";
+                                msg.className = "rounded-lg p-4 text-sm bg-red-50 text-red-700";
+                                msg.classList.remove("hidden");
+                                return;
+                            }
+                            if (phone && !/^[\d\s\-+()]{7,20}$/.test(phone)) {
+                                msg.textContent = "El formato del teléfono no es válido";
+                                msg.className = "rounded-lg p-4 text-sm bg-red-50 text-red-700";
+                                msg.classList.remove("hidden");
+                                return;
+                            }
+
                             submitBtn.disabled = true;
                             submitBtn.innerHTML = '<span class="spinner"></span> Guardando...';
 
                             const data = {
                                 first_name: content.querySelector("#edit-first_name").value,
                                 last_name: content.querySelector("#edit-last_name").value,
-                                email: content.querySelector("#edit-email").value,
-                                phone: content.querySelector("#edit-phone").value,
+                                email,
+                                phone,
                                 document_type_id: parseInt(content.querySelector("#edit-document_type_id").value),
                                 document_number: content.querySelector("#edit-document_number").value,
                                 gender_id: parseInt(content.querySelector("#edit-gender_id").value),
@@ -203,14 +206,10 @@ const EstudianteDetalle = {
                             };
 
                             try {
-                                const profileId = sp.id;
-                                if (profileId) {
-                                    await StudentService.updateStudentByAdmin(profileId, data);
-                                    Toast.success("Estudiante actualizado exitosamente");
-                                    Router.navigate(`/estudiante/${id}`);
-                                } else {
-                                    throw new Error("No se encontró el perfil del estudiante");
-                                }
+                                if (!sp?.id) throw new Error("No se encontró el perfil del estudiante");
+                                await StudentService.updateStudentByAdmin(sp.id, data);
+                                Toast.success("Estudiante actualizado exitosamente");
+                                Router.navigate(`/estudiante/${id}`);
                             } catch (err) {
                                 msg.textContent = err.message;
                                 msg.className = "rounded-lg p-4 text-sm bg-red-50 text-red-700";
@@ -248,7 +247,7 @@ const EstudianteDetalle = {
                                                 </div>
                                             </div>
                                             <div class="flex items-center gap-2">
-                                                ${isAdmin ? `<a data-link href="/estudiante/${id}/editar" class="btn-secondary text-sm px-4 py-2">Editar</a>` : ""}
+                                                ${userIsAdmin ? `<a data-link href="/estudiante/${id}/editar" class="btn-secondary text-sm px-4 py-2">Editar</a>` : ""}
                                                 <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-sm font-medium ${
                                                     sp.status === "Activo" ? "bg-green-100 text-green-800" :
                                                     sp.status === "Graduado" ? "bg-blue-100 text-blue-800" :
@@ -266,6 +265,7 @@ const EstudianteDetalle = {
                                     <span class="w-3 h-3 rounded-full ${updateStatus.color}"></span>
                                     <span class="${updateStatus.textColor} font-medium">${updateStatus.label}</span>
                                     ${lastUpdate ? `<span class="text-gray-400">· ${formatDate(lastUpdate)}</span>` : ""}
+                                    ${person.last_update_by_name ? `<span class="text-gray-400">· por ${person.last_update_by_name}</span>` : ""}
                                 </div>
                             </div>
 
@@ -308,6 +308,12 @@ const EstudianteDetalle = {
                                         <p class="text-xs text-gray-500 uppercase tracking-wide">Institución</p>
                                         <p class="text-sm font-medium text-gray-800 mt-1">${sp.institution?.name || "—"}</p>
                                     </div>
+                                    ${userIsAdmin ? `
+                                    <div>
+                                        <p class="text-xs text-gray-500 uppercase tracking-wide">Usuario</p>
+                                        <p class="text-sm font-medium text-gray-800 mt-1">${person.credential_username || "—"}</p>
+                                    </div>
+                                    ` : ""}
                                     <div>
                                         <p class="text-xs text-gray-500 uppercase tracking-wide">Última actualización</p>
                                         <p class="text-sm font-medium text-gray-800 mt-1">${lastUpdate ? formatDate(lastUpdate) : "—"}</p>
@@ -356,15 +362,8 @@ const EstudianteDetalle = {
 
                 } catch (err) {
                     console.error(err);
-                    content.innerHTML = `
-                        <div class="flex flex-col items-center justify-center py-20 text-center content-fade-in">
-                            <svg class="w-16 h-16 text-red-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            <p class="text-gray-500 mb-4">Error al cargar el estudiante</p>
-                            <button class="btn-primary" onclick="window.location.reload()">Reintentar</button>
-                        </div>
-                    `;
+                    content.innerHTML = "";
+                    content.appendChild(createErrorView("Error al cargar el estudiante"));
                 }
             })();
 

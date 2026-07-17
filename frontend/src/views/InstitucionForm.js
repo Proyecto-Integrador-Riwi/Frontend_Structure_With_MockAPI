@@ -1,3 +1,4 @@
+/** Formulario de creacion/edicion de institucion. Solo SUPERADMIN. */
 import Auth from "../modules/auth";
 import http from "../modules/http";
 import Layout from "../components/Layout";
@@ -77,9 +78,12 @@ const InstitucionForm = {
             `;
 
             // Cargar barrios
+            let neighborhoodsLoaded = false;
+            let pendingNeighborhoodValue = null;
+
             (async () => {
                 try {
-                    const neighborhoods = await http.get('api/neighborhoods').then(r => r.json());
+                    const neighborhoods = await http.getJSON('api/neighborhoods');
                     const select = content.querySelector("#inst-neighborhood");
                     neighborhoods.forEach(n => {
                         const opt = document.createElement("option");
@@ -87,6 +91,11 @@ const InstitucionForm = {
                         opt.textContent = n.name;
                         select.appendChild(opt);
                     });
+                    neighborhoodsLoaded = true;
+                    if (pendingNeighborhoodValue !== null) {
+                        select.value = pendingNeighborhoodValue;
+                        pendingNeighborhoodValue = null;
+                    }
                 } catch (err) {
                     console.error("Error loading neighborhoods:", err);
                 }
@@ -100,10 +109,11 @@ const InstitucionForm = {
                         content.querySelector("#inst-director").value = inst.director || "";
                         content.querySelector("#inst-dane").value = inst.dane_code || "";
                         content.querySelector("#inst-address").value = inst.address || "";
-                        // Barrio will be selected after load
-                        setTimeout(() => {
-                            content.querySelector("#inst-neighborhood").value = inst.neighborhood_id || "";
-                        }, 500);
+                        pendingNeighborhoodValue = inst.neighborhood_id || "";
+                        if (neighborhoodsLoaded) {
+                            content.querySelector("#inst-neighborhood").value = pendingNeighborhoodValue;
+                            pendingNeighborhoodValue = null;
+                        }
                     } catch (err) {
                         Toast.error("Error al cargar institución: " + err.message);
                     }

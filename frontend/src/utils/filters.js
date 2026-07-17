@@ -1,3 +1,4 @@
+//** Logica de filtrado de estudiantes compartida entre Estudiantes.js e Institucion.js. */
 /**
  * Aplicar filtros a una lista de estudiantes
  * @param {Array} students - Lista de estudiantes

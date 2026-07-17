@@ -1,3 +1,4 @@
+/** Pantalla de inicio de sesion con formulario de login y recuperacion de contrasena. */
 import Auth from "../modules/auth";
 import Router from "../modules/router";
 
@@ -81,6 +82,18 @@ const Login = {
                         </div>
 
 
+                        <div class="flex items-center justify-between">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input id="remember-me" type="checkbox" checked
+                                    class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                                <span class="text-sm text-gray-600">Recordar mis datos</span>
+                            </label>
+                            <button type="button" id="forgot-password"
+                                class="text-sm text-blue-600 hover:text-blue-800 transition-colors">
+                                ¿Olvidaste tu contraseña?
+                            </button>
+                        </div>
+
                         <div id="error-message"
                         class="hidden bg-error-light text-error text-sm rounded-lg px-4 py-3 text-center">
                         </div>
@@ -130,6 +143,8 @@ const Login = {
         const passwordError = container.querySelector("#password-error");
         const toggleBtn = container.querySelector("#toggle-password");
         const eyeIcon = container.querySelector("#eye-icon");
+        const rememberMe = container.querySelector("#remember-me");
+        const forgotBtn = container.querySelector("#forgot-password");
 
         const showFieldError = (el, msg) => {
             el.textContent = msg;
@@ -185,7 +200,7 @@ const Login = {
             setLoading(true);
 
             try {
-                const user = await Auth.Login(usernameInput.value, passwordInput.value);
+                const user = await Auth.Login(usernameInput.value, passwordInput.value, rememberMe.checked);
                 if (user.rol === "SUPERADMIN") {
                     Router.navigate("/dashboard-superadmin");
                 } else if (user.rol === "ESTUDIANTE") {
@@ -204,14 +219,102 @@ const Login = {
 
         [usernameInput, passwordInput].forEach(input => {
             input.addEventListener("input", () => {
-                const errorEl = input.nextElementSibling;
-                if (errorEl && errorEl.id?.includes("-error")) {
+                const errorEl = input.closest("div")?.querySelector('[id$="-error"]');
+                if (errorEl) {
                     errorEl.textContent = "";
                     errorEl.classList.add("hidden");
                     input.classList.remove("border-red-500");
                 }
             });
         });
+
+        forgotBtn.addEventListener("click", () => {
+            this._showForgotModal(container);
+        });
+    },
+
+    _showForgotModal(container) {
+        const existing = container.querySelector("#forgot-modal");
+        if (existing) return;
+
+        const backdrop = document.createElement("div");
+        backdrop.className = "fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4";
+        backdrop.id = "forgot-modal";
+
+        backdrop.innerHTML = `
+            <div class="bg-white rounded-2xl shadow-xl max-w-md w-full p-6 content-fade-in" role="dialog" aria-modal="true" aria-labelledby="forgot-title">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 id="forgot-title" class="text-lg font-bold text-gray-800">Recuperar contraseña</h2>
+                    <button type="button" id="forgot-close" class="p-1.5 text-gray-400 hover:text-gray-600 transition-colors rounded-lg hover:bg-gray-100" aria-label="Cerrar">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+                <p class="text-sm text-gray-600 mb-5">Ingresa tu nombre de usuario y te enviaremos instrucciones para recuperar tu contraseña.</p>
+                <div class="space-y-4">
+                    <div>
+                        <label for="forgot-username" class="block text-sm font-medium text-gray-700 mb-1">Usuario</label>
+                        <input id="forgot-username" type="text" required
+                            class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                            placeholder="Tu nombre de usuario" />
+                        <p id="forgot-error" class="hidden text-xs text-red-500 mt-1"></p>
+                    </div>
+                    <p id="forgot-success" class="hidden text-xs text-green-600 bg-green-50 rounded-lg px-3 py-2"></p>
+                    <button id="forgot-submit" type="button" class="btn-primary w-full py-2.5 text-sm">
+                        Enviar instrucciones
+                    </button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(backdrop);
+
+        const close = () => backdrop.remove();
+        backdrop.querySelector("#forgot-close").addEventListener("click", close);
+        backdrop.addEventListener("click", (e) => { if (e.target === backdrop) close(); });
+
+        const usernameInput = backdrop.querySelector("#forgot-username");
+        const errorEl = backdrop.querySelector("#forgot-error");
+        const successEl = backdrop.querySelector("#forgot-success");
+        const submitBtn = backdrop.querySelector("#forgot-submit");
+
+        submitBtn.addEventListener("click", async () => {
+            const username = usernameInput.value.trim();
+            if (!username) {
+                errorEl.textContent = "Ingresa tu nombre de usuario";
+                errorEl.classList.remove("hidden");
+                return;
+            }
+            errorEl.classList.add("hidden");
+            successEl.classList.add("hidden");
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner"></span> Enviando...';
+
+            try {
+                const res = await fetch("/api/auth/forgot-password", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ username })
+                });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || "Error al recuperar contraseña");
+                successEl.textContent = data.message || "Se han enviado las instrucciones a tu correo electrónico.";
+                successEl.classList.remove("hidden");
+                submitBtn.textContent = "Cerrar";
+                submitBtn.onclick = close;
+            } catch (err) {
+                errorEl.textContent = err.message;
+                errorEl.classList.remove("hidden");
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Enviar instrucciones';
+            }
+        });
+
+        usernameInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") submitBtn.click();
+            if (e.key === "Escape") close();
+        });
+
+        setTimeout(() => usernameInput.focus(), 100);
     }
 };
 export default Login;

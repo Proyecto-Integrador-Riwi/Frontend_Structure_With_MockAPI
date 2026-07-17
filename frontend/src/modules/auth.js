@@ -1,3 +1,4 @@
+/** Modulo de autenticacion - estado de sesion, token, login/logout y notificacion de cambios. */
 /**
  * Módulo de Autenticación
  * 
@@ -26,14 +27,28 @@ const Auth = {
     _listeners: [],
 
     /**
-     * Inicializar autenticación desde localStorage
+     * Inicializar autenticación desde localStorage o sessionStorage
      */
     init() {
-        const storedUser = localStorage.getItem("currentUser");
-        const storedToken = localStorage.getItem("authToken");
-        
-        this._currentUser = storedUser ? JSON.parse(storedUser) : null;
-        this._token = storedToken || null;
+        this._currentUser = this._loadFromStorage("currentUser");
+        this._token = this._loadFromStorage("authToken");
+    },
+
+    _loadFromStorage(key) {
+        return localStorage.getItem(key) || sessionStorage.getItem(key) || null;
+    },
+
+    _saveToStorage(key, value, remember) {
+        if (remember) {
+            localStorage.setItem(key, value);
+        } else {
+            sessionStorage.setItem(key, value);
+        }
+    },
+
+    _removeFromStorage(key) {
+        localStorage.removeItem(key);
+        sessionStorage.removeItem(key);
     },
 
     /**
@@ -61,36 +76,18 @@ const Auth = {
     },
 
     /**
-     * Verificar si el usuario es SuperAdmin
-     * @returns {boolean}
+     * Para verificar permisos, usa utils/permissions.js
+     * que es la fuente única de verdad para hasRole(), isAdmin(), etc.
      */
-    isSuperAdmin() {
-        return this._currentUser?.rol === "SUPERADMIN";
-    },
-
-    /**
-     * Verificar si el usuario es Administrador
-     * @returns {boolean}
-     */
-    isAdmin() {
-        return this._currentUser?.rol === "ADMINISTRADOR";
-    },
-
-    /**
-     * Verificar si el usuario es Estudiante
-     * @returns {boolean}
-     */
-    isEstudiante() {
-        return this._currentUser?.rol === "ESTUDIANTE";
-    },
 
     /**
      * Iniciar sesión
      * @param {string} username - Nombre de usuario
      * @param {string} password - Contraseña
+     * @param {boolean} remember - Persistir sesión entre pestañas
      * @returns {Promise<Object>} Datos del usuario
      */
-    async Login(username, password) {
+    async Login(username, password, remember = true) {
         const res = await AuthService.login(username, password);
         const data = await res.json();
 
@@ -98,7 +95,6 @@ const Auth = {
             throw new Error(data.error || "Credenciales incorrectas");
         }
 
-        // Guardar token y usuario
         this._token = data.token;
         this._currentUser = {
             username: data.username,
@@ -108,9 +104,8 @@ const Auth = {
             student_profile_id: data.student_profile_id
         };
 
-        // Persistir en localStorage
-        localStorage.setItem("currentUser", JSON.stringify(this._currentUser));
-        localStorage.setItem("authToken", this._token);
+        this._saveToStorage("currentUser", JSON.stringify(this._currentUser), remember);
+        this._saveToStorage("authToken", this._token, remember);
 
         this._notify();
         return this._currentUser;
@@ -120,8 +115,8 @@ const Auth = {
      * Cerrar sesión
      */
     logout() {
-        localStorage.removeItem("currentUser");
-        localStorage.removeItem("authToken");
+        this._removeFromStorage("currentUser");
+        this._removeFromStorage("authToken");
         this._currentUser = null;
         this._token = null;
         this._notify();

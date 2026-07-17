@@ -1,3 +1,4 @@
+/** Barra de filtros reutilizable para listados de estudiantes. */
 /**
  * Componente FilterBar
  * 
@@ -32,7 +33,7 @@ const FilterBar = {
                 <div class="flex flex-col max-sm:w-full">
                     <label class="text-sm font-medium text-gray-700 mb-1">Grado</label>
                     <select 
-                        id="filter-grade" 
+                        data-filter="grade" 
                         class="rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm max-sm:w-full"
                     >
                         <option value="">Todos</option>
@@ -46,7 +47,7 @@ const FilterBar = {
                 <div class="flex flex-col max-sm:w-full">
                     <label class="text-sm font-medium text-gray-700 mb-1">Género</label>
                     <select 
-                        id="filter-gender" 
+                        data-filter="gender" 
                         class="rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm max-sm:w-full"
                     >
                         <option value="">Todos</option>
@@ -60,7 +61,7 @@ const FilterBar = {
                 <div class="flex flex-col max-sm:w-full">
                     <label class="text-sm font-medium text-gray-700 mb-1">Estado</label>
                     <select 
-                        id="filter-status" 
+                        data-filter="status" 
                         class="rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm max-sm:w-full"
                     >
                         <option value="">Todos</option>
@@ -75,7 +76,7 @@ const FilterBar = {
                     <label class="text-sm font-medium text-gray-700 mb-1">Edad mínima</label>
                     <input 
                         type="number" 
-                        id="filter-min-age" 
+                        data-filter="min-age" 
                         min="10" 
                         max="30"
                         placeholder="Mín"
@@ -87,7 +88,7 @@ const FilterBar = {
                     <label class="text-sm font-medium text-gray-700 mb-1">Edad máxima</label>
                     <input 
                         type="number" 
-                        id="filter-max-age" 
+                        data-filter="max-age" 
                         min="10" 
                         max="30"
                         placeholder="Máx"
@@ -116,50 +117,46 @@ const FilterBar = {
             <div id="filter-count" class="mt-3 text-sm text-gray-500"></div>
         `;
 
-        // Event listeners
-        setTimeout(() => {
-            const applyBtn = container.querySelector('#filter-apply');
-            const clearBtn = container.querySelector('#filter-clear');
-            const gradeSelect = container.querySelector('#filter-grade');
-            const genderSelect = container.querySelector('#filter-gender');
-            const statusSelect = container.querySelector('#filter-status');
-            const minAgeInput = container.querySelector('#filter-min-age');
-            const maxAgeInput = container.querySelector('#filter-max-age');
+        const applyBtn = container.querySelector('#filter-apply');
+        const clearBtn = container.querySelector('#filter-clear');
+        const gradeSelect = container.querySelector('[data-filter="grade"]');
+        const genderSelect = container.querySelector('[data-filter="gender"]');
+        const statusSelect = container.querySelector('[data-filter="status"]');
+        const minAgeInput = container.querySelector('[data-filter="min-age"]');
+        const maxAgeInput = container.querySelector('[data-filter="max-age"]');
 
-            const getFilters = () => ({
-                grade_id: gradeSelect.value || null,
-                gender_id: genderSelect.value || null,
-                status_id: statusSelect.value || null,
-                min_age: minAgeInput.value || null,
-                max_age: maxAgeInput.value || null
+        const getFilters = () => ({
+            grade_id: gradeSelect.value || null,
+            gender_id: genderSelect.value || null,
+            status_id: statusSelect.value || null,
+            min_age: minAgeInput.value || null,
+            max_age: maxAgeInput.value || null
+        });
+
+        if (applyBtn) {
+            applyBtn.addEventListener('click', () => {
+                onFilter(getFilters());
             });
+        }
 
-            if (applyBtn) {
-                applyBtn.addEventListener('click', () => {
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                gradeSelect.value = '';
+                genderSelect.value = '';
+                statusSelect.value = '';
+                minAgeInput.value = '';
+                maxAgeInput.value = '';
+                onFilter({});
+            });
+        }
+
+        [gradeSelect, genderSelect, statusSelect].forEach(select => {
+            if (select) {
+                select.addEventListener('change', () => {
                     onFilter(getFilters());
                 });
             }
-
-            if (clearBtn) {
-                clearBtn.addEventListener('click', () => {
-                    gradeSelect.value = '';
-                    genderSelect.value = '';
-                    statusSelect.value = '';
-                    minAgeInput.value = '';
-                    maxAgeInput.value = '';
-                    onFilter({});
-                });
-            }
-
-            // Filtrar al cambiar cualquier select
-            [gradeSelect, genderSelect, statusSelect].forEach(select => {
-                if (select) {
-                    select.addEventListener('change', () => {
-                        onFilter(getFilters());
-                    });
-                }
-            });
-        }, 0);
+        });
 
         return container;
     },
@@ -171,9 +168,8 @@ const FilterBar = {
      */
     updateCount(container, count) {
         const countEl = container.querySelector('#filter-count');
-        if (countEl) {
-            countEl.textContent = `${count} estudiante${count !== 1 ? 's' : ''} encontrado${count !== 1 ? 's' : ''}`;
-        }
+        if (!countEl) return;
+        countEl.textContent = `${count} estudiante${count !== 1 ? 's' : ''} encontrado${count !== 1 ? 's' : ''}`;
     }
 };
 

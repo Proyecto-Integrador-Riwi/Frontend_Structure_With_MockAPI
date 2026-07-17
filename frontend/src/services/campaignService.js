@@ -1,3 +1,4 @@
+/** Servicio de campanas - CRUD, inscripcion, progreso y listados disponibles. */
 /**
  * Servicio de Campañas
  * 
@@ -40,15 +41,6 @@ export async function getActiveCampaigns() {
 }
 
 /**
- * Obtener campañas fijadas (para SuperAdmin)
- * @returns {Promise<Array>} Campañas fijadas
- */
-export async function getPinnedCampaigns() {
-    const res = await http.get('api/campaigns/pinned');
-    return res.json();
-}
-
-/**
  * Obtener campañas disponibles para una persona
  * @param {number} personId - ID de la persona
  * @returns {Promise<Array>} Campañas disponibles
@@ -65,16 +57,6 @@ export async function getAvailableCampaigns(personId) {
  */
 export async function enrollInCampaign(campaignId) {
     const res = await http.post(`api/campaigns/${campaignId}/enroll`, {});
-    return res.json();
-}
-
-/**
- * Obtener estudiantes inscritos en una campaña
- * @param {number} campaignId - ID de la campaña
- * @returns {Promise<Array>} Lista de estudiantes
- */
-export async function getCampaignStudents(campaignId) {
-    const res = await http.get(`api/students/campaign/${campaignId}`);
     return res.json();
 }
 
