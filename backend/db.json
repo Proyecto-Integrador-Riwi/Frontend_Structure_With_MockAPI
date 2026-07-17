@@ -491,13 +491,6 @@
     }
   ],
   "campaign_criteria": [],
-  "campaign_enrollments": [
-    {
-      "id": 1,
-      "campaign_id": 1,
-      "student_profile_id": 1,
-      "enrolled_at": "2026-07-17T04:48:47.259Z"
-    }
-  ],
+  "campaign_enrollments": [],
   "updates": []
 }

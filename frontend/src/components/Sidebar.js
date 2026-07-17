@@ -9,13 +9,13 @@ const Sidebar = {
         const links = this._getLinks(user?.rol);
 
         aside.innerHTML = `
-            <aside class="w-64 h-screen bg-[#F8F9FA] text-black flex flex-col" aria-label="Barra lateral de navegación">
-                <div class=" p-6 border-b border-slate-700">
-                    <a class="flex flex-col justify-center items-center" data-link href="/${user?.rol === "SUPERADMIN" ? "dashboard-superadmin" : user?.rol === "ESTUDIANTE" ? "dashboard-estudiante" : "dashboard"}" class="block">
-                        <div class="flex flex-col items-center gap-3 mb-1">
+            <aside class="w-64 h-screen bg-[#F8F9FA] text-black flex flex-col border-r border-[#C3C6D0]"  aria-label="Barra lateral de navegación">
+                <div class="flex flex-col justify-start py-2  mb-2">
+                    <a class="flex flex-col justify-start items-start" data-link href="/${user?.rol === "SUPERADMIN" ? "dashboard-superadmin" : user?.rol === "ESTUDIANTE" ? "dashboard-estudiante" : "dashboard"}" class="block">
+                        <div class="flex flex-col items-center gap-3 ">
                             <img src="/src/assets/nexos.svg" alt="NexoEdu" class="w-60 rounded-lg object-cover" />
                         </div>
-                        <p class="text-slate-400 text-sm text-center mt-1 ml-12">Panel de Control</p>
+                        <p class="text-slate-500 text-sm text-start">Panel de Control</p>
                     </a>
                 </div>
                 <nav class="flex-1 p-3 overflow-y-auto" aria-label="Navegación principal">
@@ -35,10 +35,10 @@ const Sidebar = {
                 </nav>
                 <div class="p-4 border-t border-slate-700">
                     <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0" style="background:var(--rol-primary, #1D4ED8)">
+                        <div class="w-9 h-9 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0" style="background:var(--color-primary, #142334)">
                             ${user?.username ? user.username.charAt(0).toUpperCase() : "?"}
                         </div>
-                        <div class="flex-grow min-w-0">
+                        <div class="flex min-w-0">
                             <p class="text-sm font-medium truncate">${user?.username || "Usuario"}</p>
                             <p class="text-xs text-slate-400">${this._roleLabel(user?.rol)}</p>
                         </div>
