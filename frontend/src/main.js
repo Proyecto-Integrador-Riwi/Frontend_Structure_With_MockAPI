@@ -70,3 +70,9 @@ const routes = {
 
 Auth.init();
 Router.init(routes);
+
+if (import.meta.hot) {
+    import.meta.hot.accept(() => {
+        window.location.reload();
+    });
+}

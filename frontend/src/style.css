@@ -1,8 +1,9 @@
 @import "tailwindcss";
 
 @theme {
-  --font-heading: "Inter", sans-serif;
-  --font-body: "Nunito", sans-serif;
+  --font-heading: "Fredoka", sans-serif;
+  --font-body: "Inter", sans-serif;
+  --color-primary: #142334;
 }
 
 /* =============================================
@@ -18,9 +19,9 @@
   --fs-xs: 0.75rem;
 
   /* --- Core palette --- */
-  --clr-primary: #1D4ED8;
+  --clr-primary: #142334;
   --clr-primary-light: #DBEAFE;
-  --clr-primary-dark: #1E3A8A;
+  --clr-primary-dark: #001833;
   --clr-accent: #DC2626;
   --clr-accent-light: #FEE2E2;
   --clr-warm: #F59E0B;
@@ -273,7 +274,7 @@ body {
    BUTTONS
    ============================================= */
 .btn-primary {
-  background: var(--rol-primary, var(--clr-primary));
+  background: var(--clr-primary);
   color: #fff;
   font-weight: 500;
   border-radius: var(--radius-md);

@@ -384,7 +384,7 @@
       "document_type_id": 1,
       "document_number": "1000000004",
       "address": "Calle 10 # 20-30",
-      "neighborhood_id": 22,
+      "neighborhood_id": 1,
       "credential_id": 4
     },
     {
@@ -412,7 +412,7 @@
       "document_type_id": 1,
       "document_number": "1000000006",
       "address": "Calle 5 # 15-25",
-      "neighborhood_id": 16,
+      "neighborhood_id": 1,
       "credential_id": 6
     }
   ],
@@ -443,7 +443,7 @@
       "people_id": 4,
       "institution_id": 1,
       "status_id": 1,
-      "grade_id": 1,
+      "grade_id": 11,
       "start_date": "2025-02-01",
       "end_date": null
     },
@@ -470,54 +470,14 @@
     {
       "id": 1,
       "title": "Actualización Datos Generales 2026",
-      "type": "academico",
+      "type": "General",
       "description": "Campaña para actualizar información personal básica de todos los estudiantes y egresados del distrito.",
       "sponsor": "Alcaldía de Barranquilla",
       "created_by_credentials_id": 1,
       "start_date": "2026-01-15",
       "end_date": "2026-12-31",
-      "url_multimedia": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQLtVUJqBSTLVYlO0SLeW7TxoA1bzTegL2phu33LrO8siPK0tZ-vN2sLTM&s=10",
-      "pinned": false,
-      "target_population": "all"
-    },
-    {
-      "id": 2,
-      "title": "Actualización Datos Generales 2026 - Julio",
-      "type": "academico",
-      "description": "Se necesita actualizar la informacion de todos los usuarios",
-      "sponsor": "I.E.D. Universidad del Norte",
-      "created_by_credentials_id": 1,
-      "start_date": "2026-07-15",
-      "end_date": "2026-07-20",
-      "url_multimedia": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR2vDOIUbAjSGSxUxOlqf7SPx8LvgG-2rfaLlZSigale3yF2qGn4lebgTuJ&s=10",
-      "pinned": false,
-      "target_population": "all"
-    },
-    {
-      "id": 3,
-      "title": "Actualizar informacion para Subsidio Estudiantil",
-      "type": "academico",
-      "description": "Para ver quienes aplican a subsidio actualicen sus datos por favor",
-      "sponsor": "Petro",
-      "created_by_credentials_id": 1,
-      "start_date": "2026-07-15",
-      "end_date": "2026-07-20",
-      "url_multimedia": "https://resources.uss.cl/upload/2022/11/supervivencia-gatos-6362b9f553582.jpg",
-      "pinned": false,
-      "target_population": "all"
-    },
-    {
-      "id": 4,
-      "title": "Actualización Datos Generales 2026 - Noviembre",
-      "type": "academico",
-      "description": "Actualicen",
-      "sponsor": "Rony",
-      "created_by_credentials_id": 1,
-      "start_date": "2026-07-16",
-      "end_date": "2026-07-20",
-      "url_multimedia": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRtS03nDanUypNbezW2-j1pSYwOcSxYfZ-6jJWP_qXR5b1WUKAl2FmTUtuN&s=10",
-      "pinned": false,
-      "target_population": "all"
+      "url_multimedia": null,
+      "pinned": true
     }
   ],
   "campaign_scope": [
@@ -528,16 +488,6 @@
       "institution_id": null,
       "neighborhood_id": null,
       "locality_id": null
-    },
-    {
-      "id": 2,
-      "campaign_id": 2,
-      "scope_type": "GLOBAL"
-    },
-    {
-      "id": 3,
-      "campaign_id": 4,
-      "scope_type": "GLOBAL"
     }
   ],
   "campaign_criteria": [],
@@ -546,73 +496,8 @@
       "id": 1,
       "campaign_id": 1,
       "student_profile_id": 1,
-      "enrolled_at": "2026-07-16T23:53:49.844Z"
-    },
-    {
-      "id": 2,
-      "campaign_id": 2,
-      "student_profile_id": 1,
-      "enrolled_at": "2026-07-16T23:55:51.894Z"
-    },
-    {
-      "id": 3,
-      "campaign_id": 2,
-      "student_profile_id": 2,
-      "enrolled_at": "2026-07-17T00:03:34.749Z"
-    },
-    {
-      "id": 4,
-      "campaign_id": 1,
-      "student_profile_id": 2,
-      "enrolled_at": "2026-07-17T00:03:44.277Z"
-    },
-    {
-      "id": 5,
-      "campaign_id": 4,
-      "student_profile_id": 1,
-      "enrolled_at": "2026-07-17T02:30:41.995Z"
+      "enrolled_at": "2026-07-17T04:48:47.259Z"
     }
   ],
-  "updates": [
-    {
-      "id": 4,
-      "people_id": 6,
-      "campaign_id": null,
-      "updated_at": "2026-07-16T23:51:36.860Z",
-      "updated_by_name": "Admin Normal Superior",
-      "updated_by_role": "ADMINISTRADOR"
-    },
-    {
-      "id": 3,
-      "people_id": 4,
-      "campaign_id": null,
-      "updated_at": "2026-07-16T23:50:59.295Z",
-      "updated_by_name": "Admin Normal Superior",
-      "updated_by_role": "ADMINISTRADOR"
-    },
-    {
-      "id": 2,
-      "people_id": 4,
-      "campaign_id": null,
-      "updated_at": "2026-07-16T23:50:48.129Z",
-      "updated_by_name": "Admin Normal Superior",
-      "updated_by_role": "ADMINISTRADOR"
-    },
-    {
-      "id": 1,
-      "people_id": 4,
-      "campaign_id": null,
-      "updated_at": "2026-07-16T23:50:27.889Z",
-      "updated_by_name": "Admin Normal Superior",
-      "updated_by_role": "ADMINISTRADOR"
-    },
-    {
-      "id": 5,
-      "people_id": 4,
-      "campaign_id": 1,
-      "updated_at": "2026-07-17T02:30:46.731Z",
-      "updated_by_name": "Carlos García Martínez",
-      "updated_by_role": "ESTUDIANTE"
-    }
-  ]
+  "updates": []
 }

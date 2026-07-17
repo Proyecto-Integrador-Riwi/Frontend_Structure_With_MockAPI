@@ -27,10 +27,13 @@ const DashboardSuperAdmin = {
 
             (async () => {
                 try {
-                    const [activeCampaigns, stats] = await Promise.all([
-                        CampaignService.getActiveCampaigns(),
-                        StudentService.getDashboardStats()
+                    const [activeCampaignsResponse, statsResponse] = await Promise.all([
+                        CampaignService.getActiveCampaigns().catch(() => []),
+                        StudentService.getDashboardStats().catch(() => ({}))
                     ]);
+
+                    const activeCampaigns = Array.isArray(activeCampaignsResponse) ? activeCampaignsResponse : [];
+                    const stats = statsResponse && typeof statsResponse === "object" ? statsResponse : {};
 
                     const topEnrolled = [...activeCampaigns]
                         .sort((a, b) => (b.enrollment_count || 0) - (a.enrollment_count || 0))
@@ -110,26 +113,30 @@ const DashboardSuperAdmin = {
 
                     const statsGrid = content.querySelector("#stats-grid");
                     const statConfigs = [
-                        { label: "Total Estudiantes", value: stats.total_students, icon: statIcons.students, color: "blue", description: "Estudiantes activos" },
-                        { label: "Egresados", value: stats.total_graduates, icon: statIcons.graduates, color: "purple", description: "Graduados" },
-                        { label: "Actualizados", value: stats.updated_count, icon: statIcons.updated, color: "green", description: `${stats.update_percentage || 0}% del total` },
-                        { label: "Pendientes", value: stats.pending_count, icon: statIcons.pending, color: "yellow", description: "Requieren actualización" }
+                        { label: "Total Estudiantes", value: Number(stats.total_students ?? 0), icon: statIcons.students, color: "blue", description: "Estudiantes activos" },
+                        { label: "Egresados", value: Number(stats.total_graduates ?? 0), icon: statIcons.graduates, color: "purple", description: "Graduados" },
+                        { label: "Actualizados", value: Number(stats.updated_count ?? 0), icon: statIcons.updated, color: "green", description: `${Number(stats.update_percentage ?? 0)}% del total` },
+                        { label: "Pendientes", value: Number(stats.pending_count ?? 0), icon: statIcons.pending, color: "yellow", description: "Requieren actualización" }
                     ];
                     statConfigs.forEach(cfg => {
-                        statsGrid.appendChild(StatsCard.render(cfg));
+                        if (statsGrid) {
+                            statsGrid.appendChild(StatsCard.render(cfg));
+                        }
                     });
 
                     if (activeCampaigns.length > 0) {
                         const cg = content.querySelector("#campaigns-grid");
-                        activeCampaigns.slice(0, 6).forEach(c => {
-                            const card = CampaignCard.render(c);
-                            card.classList.add("stagger-item", "cursor-pointer");
-                            card.addEventListener("click", (e) => {
-                                if (e.target.closest("button, a, input, select")) return;
-                                Router.navigate(`/campanas/${c.id}`);
+                        if (cg) {
+                            activeCampaigns.slice(0, 6).forEach(c => {
+                                const card = CampaignCard.render(c);
+                                card.classList.add("stagger-item", "cursor-pointer");
+                                card.addEventListener("click", (e) => {
+                                    if (e.target.closest("button, a, input, select")) return;
+                                    Router.navigate(`/campanas/${c.id}`);
+                                });
+                                cg.appendChild(card);
                             });
-                            cg.appendChild(card);
-                        });
+                        }
                     }
 
                     const topEnrolledList = content.querySelector("#top-enrolled-list");

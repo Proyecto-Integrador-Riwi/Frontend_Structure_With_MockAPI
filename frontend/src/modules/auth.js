@@ -30,12 +30,25 @@ const Auth = {
      * Inicializar autenticación desde localStorage o sessionStorage
      */
     init() {
-        this._currentUser = this._loadFromStorage("currentUser");
+        this._currentUser = this._loadUserFromStorage();
         this._token = this._loadFromStorage("authToken");
     },
 
     _loadFromStorage(key) {
         return localStorage.getItem(key) || sessionStorage.getItem(key) || null;
+    },
+
+    _loadUserFromStorage() {
+        const value = this._loadFromStorage("currentUser");
+        if (!value) return null;
+
+        try {
+            const parsed = JSON.parse(value);
+            return parsed && typeof parsed === "object" ? parsed : null;
+        } catch (error) {
+            console.warn("No se pudo parsear el usuario guardado en storage", error);
+            return null;
+        }
     },
 
     _saveToStorage(key, value, remember) {

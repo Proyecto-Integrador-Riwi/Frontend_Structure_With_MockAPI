@@ -5,6 +5,7 @@ const Router = {
     routes: [],
     currentPath: null,
     _loader: null,
+    _resolving: false,
 
     init(routesConfig) {
         this.routes = this._parseRoutes(routesConfig);
@@ -43,8 +44,19 @@ const Router = {
     },
 
     navigate(path) {
-        window.history.pushState({}, "", path);
+        const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+        if (window.location.pathname !== normalizedPath) {
+            window.history.pushState({}, "", normalizedPath);
+        }
         this.resolve();
+    },
+
+    _getDefaultRoute(user) {
+        if (!user) return "/";
+        if (user.rol === "SUPERADMIN") return "/dashboard-superadmin";
+        if (user.rol === "ADMINISTRADOR") return "/dashboard";
+        if (user.rol === "ESTUDIANTE") return "/dashboard-estudiante";
+        return "/dashboard";
     },
 
     _matchRoute(pathname) {
@@ -77,50 +89,50 @@ const Router = {
     },
 
     async resolve() {
-        const path = window.location.pathname;
-        this.currentPath = path;
+        if (this._resolving) return;
+        this._resolving = true;
 
-        const result = this._matchRoute(path);
+        try {
+            const path = window.location.pathname;
+            this.currentPath = path;
 
-        if (!result) {
-            this.navigate("/");
-            return;
-        }
+            const result = this._matchRoute(path);
 
-        const { route, params } = result;
-
-        if (route.protected && !Auth.isAuthenticated()) {
-            this.navigate("/");
-            return;
-        }
-
-        if (path === "/" && Auth.isAuthenticated()) {
-            const user = Auth.getUser();
-            if (user.rol === "SUPERADMIN") {
-                this.navigate("/dashboard-superadmin");
-            } else if (user.rol === "ADMINISTRADOR") {
-                this.navigate("/dashboard");
-            } else if (user.rol === "ESTUDIANTE") {
-                this.navigate("/dashboard-estudiante");
-            } else {
-                this.navigate("/dashboard");
+            if (!result) {
+                const fallbackPath = this._getDefaultRoute(Auth.getUser());
+                if (fallbackPath !== path) {
+                    this.navigate(fallbackPath);
+                }
+                return;
             }
-            return;
-        }
 
-        if (route.roles && !route.roles.includes(Auth.getUser()?.rol)) {
-            const user = Auth.getUser();
-            if (user?.rol === "SUPERADMIN") {
-                this.navigate("/dashboard-superadmin");
-            } else if (user?.rol === "ESTUDIANTE") {
-                this.navigate("/dashboard-estudiante");
-            } else {
-                this.navigate("/dashboard");
+            const { route, params } = result;
+
+            if (route.protected && !Auth.isAuthenticated()) {
+                this.navigate("/");
+                return;
             }
-            return;
-        }
 
-        await this.render(route.view, params);
+            if (path === "/" && Auth.isAuthenticated()) {
+                const targetPath = this._getDefaultRoute(Auth.getUser());
+                if (targetPath !== path) {
+                    this.navigate(targetPath);
+                }
+                return;
+            }
+
+            if (route.roles && !route.roles.includes(Auth.getUser()?.rol)) {
+                const fallbackPath = this._getDefaultRoute(Auth.getUser());
+                if (fallbackPath !== path) {
+                    this.navigate(fallbackPath);
+                }
+                return;
+            }
+
+            await this.render(route.view, params);
+        } finally {
+            this._resolving = false;
+        }
     },
 
     async render(view, params = {}) {

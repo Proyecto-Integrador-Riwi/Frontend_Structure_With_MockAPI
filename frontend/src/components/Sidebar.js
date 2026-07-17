@@ -9,14 +9,13 @@ const Sidebar = {
         const links = this._getLinks(user?.rol);
 
         aside.innerHTML = `
-            <aside class="w-64 h-screen bg-slate-900 text-white flex flex-col" aria-label="Barra lateral de navegación">
-                <div class="p-6 border-b border-slate-700">
-                    <a data-link href="/${user?.rol === "SUPERADMIN" ? "dashboard-superadmin" : user?.rol === "ESTUDIANTE" ? "dashboard-estudiante" : "dashboard"}" class="block">
-                        <div class="flex items-center gap-3 mb-1">
-                            <img src="/src/assets/logo.jpeg" alt="NexoEdu" class="w-9 h-9 rounded-lg object-cover" />
-                            <h1 class="text-2xl font-bold tracking-tight">NexoEdu</h1>
+            <aside class="w-64 h-screen bg-[#F8F9FA] text-black flex flex-col" aria-label="Barra lateral de navegación">
+                <div class=" p-6 border-b border-slate-700">
+                    <a class="flex flex-col justify-center items-center" data-link href="/${user?.rol === "SUPERADMIN" ? "dashboard-superadmin" : user?.rol === "ESTUDIANTE" ? "dashboard-estudiante" : "dashboard"}" class="block">
+                        <div class="flex flex-col items-center gap-3 mb-1">
+                            <img src="/src/assets/nexos.svg" alt="NexoEdu" class="w-60 rounded-lg object-cover" />
                         </div>
-                        <p class="text-slate-400 text-xs mt-1 ml-12">Panel de Control</p>
+                        <p class="text-slate-400 text-sm text-center mt-1 ml-12">Panel de Control</p>
                     </a>
                 </div>
                 <nav class="flex-1 p-3 overflow-y-auto" aria-label="Navegación principal">
@@ -25,7 +24,7 @@ const Sidebar = {
                             <li>
                                 <a data-link href="${link.href}" 
                                    class="flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition-colors sidebar-link
-                                   ${this._isActive(link.href) ? 'sidebar-active' : 'text-slate-300 hover:bg-slate-800 hover:text-white'}"
+                                   ${this._isActive(link.href) ? 'sidebar-active' : 'text-slate-800 hover:bg-slate-800 hover:text-white'}"
                                    ${this._isActive(link.href) ? 'aria-current="page"' : ''}>
                                     ${link.icon}
                                     <span>${link.label}</span>

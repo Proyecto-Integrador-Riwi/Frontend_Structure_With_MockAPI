@@ -11,7 +11,7 @@ const Login = {
         container.className = "min-h-screen flex items-center justify-center bg-surface px-4";
 
         container.innerHTML = `
-        <div class="mx-auto max-w-6xl mt-8 rounded-2xl shadow-lg overflow-hidden bg-white w-full">
+        <div class="flex mx-auto shadow-lg overflow-hidden rounded-xl bg-white w-full sm:justify-center">
             <div class="grid grid-cols-1 lg:grid-cols-2 min-h-[700px]">
 
                 <div class="hidden lg:block">
@@ -25,14 +25,14 @@ const Login = {
                 <div class="bg-white p-8 md:p-12 flex flex-col justify-center">
 
                     <div class="flex justify-center mb-6">
-                        <img src="/src/assets/logo.jpeg" alt="NexoEdu" class="w-20 h-20 rounded-2xl object-cover shadow-md" />
+                        <img src="/src/assets/nexoLogo.svg" alt="NexoEdu" class="w-28 h-28  object-cover" />
                     </div>
 
-                    <h1 class="font-bold text-gray-800 text-3xl md:text-4xl text-center">
+                    <h1 class="font-semibold text-primary text-3xl md:text-4xl text-center">
                         Bienvenido a NexoEdu
                     </h1>
 
-                    <p class="text-gray-500 text-base py-2 text-center">
+                    <p class="text-gray-500 text-lg py-2 text-center">
                         Inicia sesión para continuar con tu formación académica.
                     </p>
 
@@ -40,7 +40,7 @@ const Login = {
                     <form id="loginForm" class="mt-8 space-y-5">
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1.5" for="username">
+                            <label class="block text-lg font-semibold text-gray-700 mb-1.5" for="username">
                                 Usuario
                             </label>
                             <input 
@@ -56,7 +56,7 @@ const Login = {
 
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1.5" for="password">
+                            <label class="block text-lg font-semibold text-gray-700 mb-1.5" for="password">
                                 Contraseña
                             </label>
                             <div class="relative">
@@ -86,10 +86,10 @@ const Login = {
                             <label class="flex items-center gap-2 cursor-pointer">
                                 <input id="remember-me" type="checkbox" checked
                                     class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-                                <span class="text-sm text-gray-600">Recordar mis datos</span>
+                                <span class="text-base text-gray-600">Recordar mis datos</span>
                             </label>
                             <button type="button" id="forgot-password"
-                                class="text-sm text-blue-600 hover:text-blue-800 transition-colors">
+                                class="text-base text-blue-600 hover:text-blue-800 transition-colors cursor-pointer">
                                 ¿Olvidaste tu contraseña?
                             </button>
                         </div>
@@ -102,7 +102,7 @@ const Login = {
                         <button 
                             id="login-btn"
                             type="submit"
-                            class="btn-primary w-full py-2.5 text-base">
+                            class="btn-primary w-full py-2.5 text-lg cursor-pointer">
                             Iniciar Sesión
                         </button>
 
@@ -110,7 +110,7 @@ const Login = {
                             <img 
                             src="/src/assets/barranquilla_logo.png"
                             alt="Alcaldía de Barranquilla"
-                            class="h-24 object-contain">
+                            class="h-32 object-contain">
                         </div>
 
                         <p class="text-center text-gray-400 text-sm mt-6">
