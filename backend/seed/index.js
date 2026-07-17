@@ -1,61 +1,16 @@
-/**
- * Script de generación de datos para JSON-Server
- * 
- * Este script genera el archivo db.json con todos los datos de prueba
- * necesarios para el desarrollo del frontend mientras el equipo backend
- * completa los endpoints reales con FastAPI + PostgreSQL.
- * 
- * IMPORTANTE: Este script es PROVISIONAL y será eliminado cuando el
- * backend real esté listo.
- * 
- * Uso:
- *   node backend/seed/index.js
- * 
- * El archivo db.json se generará en backend/db.json
- */
-
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-// Obtener directorio actual
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Importar datos estáticos
 import localidades from './data/localidades.js';
 import barrios from './data/barrios.js';
 import instituciones from './data/instituciones.js';
 import campanas from './data/campanas.js';
 
-// Importar generadores
-import {
-    generatePerson,
-    generateStudentProfile,
-    generateEnrollment,
-    generateUpdate
-} from './utils/generators.js';
 
-// ============================================================
-// CONFIGURACIÓN DEL SEED
-// ============================================================
-
-const CONFIG = {
-    // Número de estudiantes por institución
-    studentsPerInstitution: [18, 16, 14, 13, 12, 11, 10, 10, 10, 8], // Total: 122
-    
-    // Número de egresados por institución
-    graduatesPerInstitution: [12, 11, 10, 9, 8, 7, 6, 6, 6, 4], // Total: 79
-    
-    // Número de retirados por institución
-    withdrawnPerInstitution: [2, 2, 2, 1, 1, 1, 1, 1, 1, 0], // Total: 12
-    
-    // Porcentaje de estudiantes que se inscriben en campañas
-    enrollmentPercentage: 0.6,
-    
-    // Porcentaje de personas que actualizan sus datos
-    updatePercentage: 0.4
-};
 
 // ============================================================
 // CATÁLOGOS
@@ -102,427 +57,146 @@ const statuses = [
 ];
 
 // ============================================================
-// GENERACIÓN DE CREDENCIALES
+// CREDENCIALES
 // ============================================================
 
 function generateCredentials() {
-    const credentials = [];
-    let id = 1;
+    return [
+        { id: 1, username: "admin_global", password: "123456", role_id: 1 },
+        { id: 2, username: "admin_n1",     password: "123456", role_id: 2 },
+        { id: 3, username: "admin_n2",     password: "123456", role_id: 2 }
+    ];
+}
 
-    // SuperAdmin
-    credentials.push({
-        id: id++,
-        username: "admin_global",
-        password: "123456",
-        role_id: 1
+// ============================================================
+// PERSONAS (admins + estudiantes hardcodeados)
+// ============================================================
+
+function generatePeople() {
+    const people = [];
+
+    // Admin persona para admin_global (credential_id: 1)
+    people.push({
+        id: 1,
+        first_name: "Admin",
+        last_name: "Global",
+        gender_id: 1,
+        birth_date: "1990-01-01",
+        email: "admin.global@nexoedu.gov.co",
+        phone: "3001111111",
+        document_type_id: 1,
+        document_number: "1000000001",
+        address: "Calle 1 # 1-1",
+        neighborhood_id: 1,
+        credential_id: 1
     });
 
-    // Admins (uno por institución)
-    for (let i = 0; i < 10; i++) {
-        credentials.push({
-            id: id++,
-            username: `admin_n${i + 1}`,
-            password: "123456",
-            role_id: 2
-        });
-    }
+    // Admin persona para admin_n1 (credential_id: 2)
+    people.push({
+        id: 2,
+        first_name: "Admin",
+        last_name: "Normal Superior",
+        gender_id: 2,
+        birth_date: "1992-05-10",
+        email: "admin.n1@nexoedu.gov.co",
+        phone: "3002222222",
+        document_type_id: 1,
+        document_number: "1000000002",
+        address: "Calle 2 # 2-2",
+        neighborhood_id: 1,
+        credential_id: 2
+    });
 
-    // Estudiantes (se generarán después)
-    return { credentials, nextId: id };
+    // Admin persona para admin_n2 (credential_id: 3)
+    people.push({
+        id: 3,
+        first_name: "Admin",
+        last_name: "Uninorte",
+        gender_id: 1,
+        birth_date: "1988-11-20",
+        email: "admin.n2@nexoedu.gov.co",
+        phone: "3003333333",
+        document_type_id: 1,
+        document_number: "1000000003",
+        address: "Calle 3 # 3-3",
+        neighborhood_id: 6,
+        credential_id: 3
+    });
+
+    // Estudiante 1: Carlos García, M, 11°, activo → institución 1
+    people.push({
+        id: 4,
+        first_name: "Carlos",
+        last_name: "García Martínez",
+        gender_id: 1,
+        birth_date: "2008-03-15",
+        email: "carlos.garcia4@gmail.com",
+        phone: "3004444444",
+        document_type_id: 1,
+        document_number: "1000000004",
+        address: "Calle 10 # 20-30",
+        neighborhood_id: 1,
+        credential_id: null
+    });
+
+    // Estudiante 2: María López, F, 10°, activa → institución 2
+    people.push({
+        id: 5,
+        first_name: "María",
+        last_name: "López Pérez",
+        gender_id: 2,
+        birth_date: "2009-07-22",
+        email: "maria.lopez5@gmail.com",
+        phone: "3005555555",
+        document_type_id: 1,
+        document_number: "1000000005",
+        address: "Carrera 15 # 40-50",
+        neighborhood_id: 6,
+        credential_id: null
+    });
+
+    // Estudiante 3: José Rodríguez, M, 11°, egresado → institución 1
+    people.push({
+        id: 6,
+        first_name: "José",
+        last_name: "Rodríguez Díaz",
+        gender_id: 1,
+        birth_date: "2007-02-10",
+        email: "jose.rodriguez6@gmail.com",
+        phone: "3006666666",
+        document_type_id: 1,
+        document_number: "1000000006",
+        address: "Calle 5 # 15-25",
+        neighborhood_id: 1,
+        credential_id: null
+    });
+
+    return people;
 }
 
 // ============================================================
-// GENERACIÓN DE PERSONAS Y PERFILES
+// PERFILES DE ESTUDIANTE
 // ============================================================
 
-function generatePeopleAndProfiles(startId) {
-    const people = [];
-    const studentProfiles = [];
-    let personId = startId;
-    let profileId = 1;
-
-    let totalStudents = 0;
-    let totalGraduates = 0;
-    let totalWithdrawn = 0;
-
-    for (let instIdx = 0; instIdx < 10; instIdx++) {
-        const institutionId = instIdx + 1;
-        const neighborhoodId = instituciones[instIdx].neighborhood_id;
-
-        // Estudiantes activos
-        const numStudents = CONFIG.studentsPerInstitution[instIdx];
-        for (let i = 0; i < numStudents; i++) {
-            const genderId = Math.random() > 0.5 ? 1 : 2; // 50% masculino, 50% femenino
-            const gradeId = Math.floor(Math.random() * 11) + 1; // Grado 1-11
-            
-            const person = generatePerson(personId, genderId, neighborhoodId, null);
-            people.push(person);
-
-            const profile = generateStudentProfile(profileId, personId, institutionId, 1, gradeId);
-            studentProfiles.push(profile);
-
-            personId++;
-            profileId++;
-            totalStudents++;
-        }
-
-        // Egresados
-        const numGraduates = CONFIG.graduatesPerInstitution[instIdx];
-        for (let i = 0; i < numGraduates; i++) {
-            const genderId = Math.random() > 0.5 ? 1 : 2;
-            const gradeId = 11; // Egresados son grado 11
-            
-            const person = generatePerson(personId, genderId, neighborhoodId, null);
-            people.push(person);
-
-            const profile = generateStudentProfile(profileId, personId, institutionId, 2, gradeId);
-            studentProfiles.push(profile);
-
-            personId++;
-            profileId++;
-            totalGraduates++;
-        }
-
-        // Retirados
-        const numWithdrawn = CONFIG.withdrawnPerInstitution[instIdx];
-        for (let i = 0; i < numWithdrawn; i++) {
-            const genderId = Math.random() > 0.5 ? 1 : 2;
-            const gradeId = Math.floor(Math.random() * 8) + 4; // Grado 4-11
-            
-            const person = generatePerson(personId, genderId, neighborhoodId, null);
-            people.push(person);
-
-            const profile = generateStudentProfile(profileId, personId, institutionId, 3, gradeId);
-            studentProfiles.push(profile);
-
-            personId++;
-            profileId++;
-            totalWithdrawn++;
-        }
-    }
-
-    console.log(`  Personas generadas: ${people.length}`);
-    console.log(`    - Estudiantes activos: ${totalStudents}`);
-    console.log(`    - Egresados: ${totalGraduates}`);
-    console.log(`    - Retirados: ${totalWithdrawn}`);
-
-    return { people, studentProfiles, nextPersonId: personId, nextProfileId: profileId };
+function generateStudentProfiles() {
+    return [
+        { id: 1, people_id: 4, institution_id: 1, status_id: 1, grade_id: 11, start_date: "2025-02-01", end_date: null },
+        { id: 2, people_id: 5, institution_id: 2, status_id: 1, grade_id: 10, start_date: "2025-02-01", end_date: null },
+        { id: 3, people_id: 6, institution_id: 1, status_id: 2, grade_id: 11, start_date: "2020-02-01", end_date: "2025-11-30" }
+    ];
 }
 
 // ============================================================
-// GENERACIÓN DE CAMPAÑAS Y ALCANCES
+// ALCANCE DE CAMPAÑA (1 sola campaña global, sin criterios)
 // ============================================================
 
 function generateCampaignScopesAndCriteria() {
-    const campaignScopes = [];
-    const campaignCriteria = [];
-    let scopeId = 1;
-    let criteriaId = 1;
-
-    // Campaña 1: Global (sin alcance específico)
-    campaignScopes.push({
-        id: scopeId++,
-        scope_type: "GLOBAL",
-        campaign_id: 1,
-        institution_id: null,
-        neighborhood_id: null,
-        localities_id: null
-    });
-
-    // Campaña 2: Institución 1
-    campaignScopes.push({
-        id: scopeId++,
-        scope_type: "INSTITUTION",
-        campaign_id: 2,
-        institution_id: 1,
-        neighborhood_id: null,
-        localities_id: null
-    });
-
-    // Campaña 3: Global
-    campaignScopes.push({
-        id: scopeId++,
-        scope_type: "GLOBAL",
-        campaign_id: 3,
-        institution_id: null,
-        neighborhood_id: null,
-        localities_id: null
-    });
-
-    // Campaña 4: Localidad Norte
-    campaignScopes.push({
-        id: scopeId++,
-        scope_type: "LOCALITY",
-        campaign_id: 4,
-        institution_id: null,
-        neighborhood_id: null,
-        localities_id: 1
-    });
-    campaignCriteria.push({
-        id: criteriaId++,
-        campaign_id: 4,
-        gender_id: null,
-        min_age: 15,
-        max_age: 25,
-        grade_id: null,
-        status_id: null
-    });
-
-    // Campaña 5: Barrio específico
-    campaignScopes.push({
-        id: scopeId++,
-        scope_type: "NEIGHBORHOOD",
-        campaign_id: 5,
-        institution_id: null,
-        neighborhood_id: 1, // Belén
-        localities_id: null
-    });
-    campaignCriteria.push({
-        id: criteriaId++,
-        campaign_id: 5,
-        gender_id: null,
-        min_age: null,
-        max_age: null,
-        grade_id: 11,
-        status_id: 1
-    });
-
-    // Campaña 6: Global
-    campaignScopes.push({
-        id: scopeId++,
-        scope_type: "GLOBAL",
-        campaign_id: 6,
-        institution_id: null,
-        neighborhood_id: null,
-        localities_id: null
-    });
-    campaignCriteria.push({
-        id: criteriaId++,
-        campaign_id: 6,
-        gender_id: null,
-        min_age: null,
-        max_age: null,
-        grade_id: null,
-        status_id: 2 // Solo graduados
-    });
-
-    // Campaña 7: Occidente
-    campaignScopes.push({
-        id: scopeId++,
-        scope_type: "LOCALITY",
-        campaign_id: 7,
-        institution_id: null,
-        neighborhood_id: null,
-        localities_id: 3
-    });
-
-    // Campaña 8: Global
-    campaignScopes.push({
-        id: scopeId++,
-        scope_type: "GLOBAL",
-        campaign_id: 8,
-        institution_id: null,
-        neighborhood_id: null,
-        localities_id: null
-    });
-    campaignCriteria.push({
-        id: criteriaId++,
-        campaign_id: 8,
-        gender_id: null,
-        min_age: null,
-        max_age: null,
-        grade_id: null,
-        status_id: 1 // Solo activos
-    });
-
-    // Campaña 9: Institución 2
-    campaignScopes.push({
-        id: scopeId++,
-        scope_type: "INSTITUTION",
-        campaign_id: 9,
-        institution_id: 2,
-        neighborhood_id: null,
-        localities_id: null
-    });
-
-    // Campaña 10: Oriente
-    campaignScopes.push({
-        id: scopeId++,
-        scope_type: "LOCALITY",
-        campaign_id: 10,
-        institution_id: null,
-        neighborhood_id: null,
-        localities_id: 4
-    });
-    campaignCriteria.push({
-        id: criteriaId++,
-        campaign_id: 10,
-        gender_id: null,
-        min_age: 16,
-        max_age: 30,
-        grade_id: null,
-        status_id: null
-    });
-
-    // Campaña 11: Sur
-    campaignScopes.push({
-        id: scopeId++,
-        scope_type: "LOCALITY",
-        campaign_id: 11,
-        institution_id: null,
-        neighborhood_id: null,
-        localities_id: 5
-    });
-    campaignCriteria.push({
-        id: criteriaId++,
-        campaign_id: 11,
-        gender_id: null,
-        min_age: 12,
-        max_age: 18,
-        grade_id: null,
-        status_id: null
-    });
-
-    // Campaña 12: Global
-    campaignScopes.push({
-        id: scopeId++,
-        scope_type: "GLOBAL",
-        campaign_id: 12,
-        institution_id: null,
-        neighborhood_id: null,
-        localities_id: null
-    });
-    campaignCriteria.push({
-        id: criteriaId++,
-        campaign_id: 12,
-        gender_id: null,
-        min_age: null,
-        max_age: null,
-        grade_id: 10,
-        status_id: 1
-    });
-
-    // Campaña 13: Nororiente
-    campaignScopes.push({
-        id: scopeId++,
-        scope_type: "LOCALITY",
-        campaign_id: 13,
-        institution_id: null,
-        neighborhood_id: null,
-        localities_id: 2
-    });
-
-    // Campaña 14: Suroccidente
-    campaignScopes.push({
-        id: scopeId++,
-        scope_type: "LOCALITY",
-        campaign_id: 14,
-        institution_id: null,
-        neighborhood_id: null,
-        localities_id: 6
-    });
-    campaignCriteria.push({
-        id: criteriaId++,
-        campaign_id: 14,
-        gender_id: null,
-        min_age: 15,
-        max_age: 22,
-        grade_id: null,
-        status_id: null
-    });
-
-    // Campaña 15: Global
-    campaignScopes.push({
-        id: scopeId++,
-        scope_type: "GLOBAL",
-        campaign_id: 15,
-        institution_id: null,
-        neighborhood_id: null,
-        localities_id: null
-    });
-
-    return { campaignScopes, campaignCriteria };
-}
-
-// ============================================================
-// GENERACIÓN DE INSCRIPCIONES Y ACTUALIZACIONES
-// ============================================================
-
-function generateEnrollmentsAndUpdates(studentProfiles, people) {
-    const enrollments = [];
-    const updates = [];
-    let enrollmentId = 1;
-    let updateId = 1;
-
-    // Para cada campaña activa o pasada
-    const activeCampaigns = campanas.filter(c => {
-        const now = new Date();
-        const start = new Date(c.start_date);
-        const end = c.end_date ? new Date(c.end_date) : new Date('2099-12-31');
-        return now >= start || now <= end;
-    });
-
-    for (const campaign of activeCampaigns) {
-        // Inscribir un porcentaje de estudiantes
-        const numToEnroll = Math.floor(studentProfiles.length * CONFIG.enrollmentPercentage);
-        const shuffled = [...studentProfiles].sort(() => 0.5 - Math.random());
-        const toEnroll = shuffled.slice(0, numToEnroll);
-
-        for (const profile of toEnroll) {
-            enrollments.push(generateEnrollment(enrollmentId++, campaign.id, profile.id));
-        }
-    }
-
-    // Generar actualizaciones para algunos inscritos
-    const numToUpdate = Math.floor(enrollments.length * CONFIG.updatePercentage);
-    const shuffledEnrollments = [...enrollments].sort(() => 0.5 - Math.random());
-    const toUpdate = shuffledEnrollments.slice(0, numToUpdate);
-
-    for (const enrollment of toUpdate) {
-        const profile = studentProfiles.find(p => p.id === enrollment.student_profile_id);
-        if (profile) {
-            updates.push(generateUpdate(updateId++, profile.people_id, enrollment.campaign_id));
-        }
-    }
-
-    console.log(`  Inscripciones generadas: ${enrollments.length}`);
-    console.log(`  Actualizaciones generadas: ${updates.length}`);
-
-    return { enrollments, updates };
-}
-
-// ============================================================
-// GENERACIÓN DE CONTACTOS PERSONALES
-// ============================================================
-
-function generatePersonalContacts(people) {
-    const contacts = [];
-    let contactId = 1;
-
-    // Generar contactos para el 70% de las personas
-    const numContacts = Math.floor(people.length * 0.7);
-    const shuffledPeople = [...people].sort(() => 0.5 - Math.random());
-    const peopleWithContacts = shuffledPeople.slice(0, numContacts);
-
-    const relationships = ["Padre", "Madre", "Hermano", "Hermana", "Tío", "Tía", "Abuelo", "Abuela", "Primo", "Prima", "Amigo", "Amiga"];
-
-    for (const person of peopleWithContacts) {
-        const relationship = relationships[Math.floor(Math.random() * relationships.length)];
-        const isMale = Math.random() > 0.5;
-
-        contacts.push({
-            id: contactId++,
-            first_name: isMale ? "Carlos" : "María",
-            last_name: person.last_name.split(" ")[0],
-            phone: `3${Math.floor(10 + Math.random() * 90)}${Math.floor(1000000 + Math.random() * 9000000)}`,
-            people_id: person.id,
-            relationship
-        });
-    }
-
-    console.log(`  Contactos personales generados: ${contacts.length}`);
-
-    return contacts;
+    return {
+        campaignScopes: [
+            { id: 1, scope_type: "GLOBAL", campaign_id: 1, institution_id: null, neighborhood_id: null, locality_id: null }
+        ],
+        campaignCriteria: []
+    };
 }
 
 // ============================================================
@@ -530,26 +204,26 @@ function generatePersonalContacts(people) {
 // ============================================================
 
 function generateDatabase() {
-    console.log("🚀 Iniciando generación de base de datos...\n");
+    console.log("🚀 Iniciando generación de base de datos mínima...\n");
 
-    // 1. Credenciales
     console.log("📋 Generando credenciales...");
-    const { credentials: baseCredentials, nextId: credentialsNextId } = generateCredentials();
-    console.log(`  Credenciales base: ${baseCredentials.length}`);
+    const credentials = generateCredentials();
+    console.log(`  Credenciales: ${credentials.length}`);
 
-    // 2. Personas y perfiles de estudiante
-    console.log("\n👥 Generando personas y perfiles...");
-    const { people, studentProfiles, nextPersonId, nextProfileId } = generatePeopleAndProfiles(credentialsNextId);
-    
-    // Asignar credenciales a personas (solo admins y superadmin)
-    for (let i = 0; i < baseCredentials.length; i++) {
-        people[i].credential_id = baseCredentials[i].id;
+    console.log("\n👥 Generando personas...");
+    const people = generatePeople();
+    console.log(`  Personas: ${people.length}`);
+
+    // Asignar credential_id a las personas admin
+    for (let i = 0; i < credentials.length; i++) {
+        people[i].credential_id = credentials[i].id;
     }
 
-    // Generar credenciales para estudiantes
+    // Generar credenciales para estudiantes (personas 4, 5, 6)
     const studentCredentials = [];
-    let credId = credentialsNextId;
-    for (const person of people.slice(baseCredentials.length)) {
+    let credId = 4;
+    for (let i = 3; i < people.length; i++) {
+        const person = people[i];
         const cred = {
             id: credId++,
             username: person.email.split("@")[0],
@@ -560,25 +234,34 @@ function generateDatabase() {
         person.credential_id = cred.id;
     }
 
-    const allCredentials = [...baseCredentials, ...studentCredentials];
+    const allCredentials = [...credentials, ...studentCredentials];
     console.log(`  Credenciales totales: ${allCredentials.length}`);
+    console.log(`    - admin_global    (SUPERADMIN)    → pass: 123456`);
+    console.log(`    - admin_n1        (ADMINISTRADOR) → pass: 123456`);
+    console.log(`    - admin_n2        (ADMINISTRADOR) → pass: 123456`);
+    console.log(`    - carlos.garcia4  (ESTUDIANTE)    → pass: 123456`);
+    console.log(`    - maria.lopez5    (ESTUDIANTE)    → pass: 123456`);
+    console.log(`    - jose.rodriguez6 (ESTUDIANTE)    → pass: 123456`);
 
-    // 3. Campañas, alcances y criterios
-    console.log("\n📢 Generando campañas...");
+    console.log("\n📋 Generando perfiles de estudiante...");
+    const studentProfiles = generateStudentProfiles();
+    console.log(`  Perfiles: ${studentProfiles.length}`);
+
+    console.log("\n📢 Generando campaña...");
     const { campaignScopes, campaignCriteria } = generateCampaignScopesAndCriteria();
-    console.log(`  Alcances de campaña: ${campaignScopes.length}`);
-    console.log(`  Criterios de campaña: ${campaignCriteria.length}`);
+    console.log(`  Campañas: ${campanas.length}`);
+    console.log(`  Alcances: ${campaignScopes.length}`);
+    console.log(`  Criterios: ${campaignCriteria.length}`);
 
-    // 4. Inscripciones y actualizaciones
-    console.log("\n📝 Generando inscripciones y actualizaciones...");
-    const { enrollments, updates } = generateEnrollmentsAndUpdates(studentProfiles, people);
+    console.log("\n📝 Inscripciones y actualizaciones — 0 (entorno de prueba mínimo)");
+    const enrollments = [];
+    const updates = [];
 
-    // 5. Contactos personales
-    console.log("\n📞 Generando contactos personales...");
-    const personalContacts = generatePersonalContacts(people);
+    console.log("\n📞 Contactos personales — 0");
+    const personalContacts = [];
 
     // ============================================================
-    // ESTRUCTURA FINAL DE LA BASE DE DATOS
+    // ESTRUCTURA FINAL
     // ============================================================
 
     const db = {
@@ -601,38 +284,33 @@ function generateDatabase() {
         updates
     };
 
-    // ============================================================
-    // ESCRITURA DEL ARCHIVO
-    // ============================================================
-
     const outputPath = path.join(__dirname, '..', 'db.json');
-    
+
     try {
         fs.writeFileSync(outputPath, JSON.stringify(db, null, 2), 'utf-8');
         console.log(`\n✅ Base de datos generada exitosamente en: ${outputPath}`);
         console.log(`📊 Resumen:`);
-        console.log(`   - Roles: ${user_roles.length}`);
-        console.log(`   - Tipos de documento: ${document_types.length}`);
-        console.log(`   - Géneros: ${genders.length}`);
-        console.log(`   - Grados: ${grades.length}`);
-        console.log(`   - Estados: ${statuses.length}`);
-        console.log(`   - Localidades: ${localidades.length}`);
-        console.log(`   - Barrios: ${barrios.length}`);
-        console.log(`   - Credenciales: ${allCredentials.length}`);
-        console.log(`   - Personas: ${people.length}`);
-        console.log(`   - Contactos personales: ${personalContacts.length}`);
-        console.log(`   - Instituciones: ${instituciones.length}`);
-        console.log(`   - Perfiles de estudiante: ${studentProfiles.length}`);
-        console.log(`   - Campañas: ${campanas.length}`);
-        console.log(`   - Alcances de campaña: ${campaignScopes.length}`);
-        console.log(`   - Criterios de campaña: ${campaignCriteria.length}`);
-        console.log(`   - Inscripciones: ${enrollments.length}`);
-        console.log(`   - Actualizaciones: ${updates.length}`);
+        console.log(`   - Roles:               ${user_roles.length}`);
+        console.log(`   - Tipos de documento:   ${document_types.length}`);
+        console.log(`   - Géneros:             ${genders.length}`);
+        console.log(`   - Grados:              ${grades.length}`);
+        console.log(`   - Estados:             ${statuses.length}`);
+        console.log(`   - Localidades:         ${localidades.length}`);
+        console.log(`   - Barrios:             ${barrios.length}`);
+        console.log(`   - Credenciales:        ${allCredentials.length}`);
+        console.log(`   - Personas:            ${people.length}`);
+        console.log(`   - Contactos:           ${personalContacts.length}`);
+        console.log(`   - Instituciones:       ${instituciones.length}`);
+        console.log(`   - Perfiles estudiante: ${studentProfiles.length}`);
+        console.log(`   - Campañas:            ${campanas.length}`);
+        console.log(`   - Alcances campaña:    ${campaignScopes.length}`);
+        console.log(`   - Criterios campaña:   ${campaignCriteria.length}`);
+        console.log(`   - Inscripciones:       ${enrollments.length}`);
+        console.log(`   - Actualizaciones:     ${updates.length}`);
     } catch (error) {
         console.error("❌ Error al escribir el archivo:", error);
         process.exit(1);
     }
 }
 
-// Ejecutar generación
 generateDatabase();

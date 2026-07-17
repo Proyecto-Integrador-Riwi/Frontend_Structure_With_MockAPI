@@ -1,3 +1,4 @@
+/** Cliente HTTP con timeout, manejo de errores y token Bearer automatico. */
 /**
  * Módulo HTTP
  * 
@@ -9,7 +10,7 @@
  * 2. El token ya se envía automáticamente en el header Authorization
  */
 
-import { API_URL } from "./auth.js";
+import Auth, { API_URL } from "./auth.js";
 
 const TIMEOUT_MS = 30000;
 
@@ -33,8 +34,7 @@ const http = {
             signal: controller.signal
         };
 
-        // Agregar token de autenticación si existe
-        const token = localStorage.getItem("authToken");
+        const token = Auth.getToken();
         if (token) {
             options.headers["Authorization"] = `Bearer ${token}`;
         }
@@ -70,6 +70,10 @@ const http = {
         return this.request("GET", endpoint);
     },
 
+    getJSON(endpoint) {
+        return this.request("GET", endpoint).then(r => r.json());
+    },
+
     /**
      * Realizar petición POST
      * @param {string} endpoint - Endpoint de la API
@@ -88,6 +92,16 @@ const http = {
      */
     put(endpoint, data) {
         return this.request("PUT", endpoint, data);
+    },
+
+    /**
+     * Realizar petición PATCH
+     * @param {string} endpoint - Endpoint de la API
+     * @param {Object} data - Datos a enviar (opcional)
+     * @returns {Promise<Response>}
+     */
+    patch(endpoint, data = null) {
+        return this.request("PATCH", endpoint, data);
     },
 
     /**

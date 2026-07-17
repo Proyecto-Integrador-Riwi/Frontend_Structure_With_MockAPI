@@ -1,3 +1,4 @@
+/** Dialogo modal de confirmacion reutilizable. */
 const ConfirmDialog = {
     _lastFocused: null,
 

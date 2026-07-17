@@ -1,3 +1,4 @@
+/** Dashboard del estudiante — campañas disponibles para inscribirse y enlaces rápidos. */
 import Auth from "../modules/auth";
 import Router from "../modules/router";
 import Layout from "../components/Layout";
@@ -6,6 +7,7 @@ import Skeleton from "../components/Skeleton";
 import EmptyState from "../components/EmptyState";
 import Toast from "../components/Toast";
 import ConfirmDialog from "../components/ConfirmDialog";
+import { createErrorView } from "../utils/errorHandler";
 import * as CampaignService from "../services/campaignService";
 
 const DashboardEstudiante = {
@@ -81,17 +83,10 @@ const DashboardEstudiante = {
                                         onConfirm: async () => {
                                             try {
                                                 await CampaignService.enrollInCampaign(campaignId);
-                                                Toast.show("¡Inscripción exitosa!", "success");
-                                                // Mark card as enrolled instead of full refresh
-                                                const btn = card.querySelector("[data-campaign-id]");
-                                                if (btn) {
-                                                    btn.disabled = true;
-                                                    btn.textContent = "✓ Inscrito";
-                                                    btn.classList.remove("btn-primary");
-                                                    btn.classList.add("btn-outline");
-                                                }
+                                                Toast.success("¡Inscripción exitosa! Ahora puedes actualizar tus datos.");
+                                                Router.navigate("/perfil/editar");
                                             } catch (err) {
-                                                Toast.show(err.message || "Error al inscribirse", "error");
+                                                Toast.error(err.message || "Error al inscribirse");
                                             }
                                         }
                                     });
@@ -104,15 +99,8 @@ const DashboardEstudiante = {
 
                 } catch (err) {
                     console.error(err);
-                    content.innerHTML = `
-                        <div class="flex flex-col items-center justify-center py-20 text-center content-fade-in">
-                            <svg class="w-16 h-16 text-red-300 mb-4" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            <p class="text-gray-500 mb-4">Error al cargar datos</p>
-                            <button class="btn-primary" onclick="window.location.reload()">Reintentar</button>
-                        </div>
-                    `;
+                    content.innerHTML = "";
+                    content.appendChild(createErrorView("Error al cargar datos"));
                 }
             })();
 

@@ -54,42 +54,42 @@
   --radius-2xl: 1.5rem;
 
   /* --- Role defaults (overridden by data-role) --- */
-  --rol-primary: #1D4ED8;
-  --rol-primary-light: #DBEAFE;
-  --rol-accent: #F59E0B;
-  --rol-accent-light: #FEF3C7;
-  --rol-gradient: linear-gradient(135deg, #1D4ED8 0%, #1E3A8A 100%);
+  --rol-primary: #475569;
+  --rol-primary-light: #E2E8F0;
+  --rol-accent: #64748B;
+  --rol-accent-light: #F1F5F9;
+  --rol-gradient: linear-gradient(135deg, #334155 0%, #0F172A 100%);
 }
 
 /* =============================================
    ROLE-BASED THEMING
    ============================================= */
 
-/* SUPERADMIN — Ministry of Education: authority + gold */
+/* SUPERADMIN */
 [data-role="SUPERADMIN"] {
-  --rol-primary: #1D4ED8;
-  --rol-primary-light: #DBEAFE;
-  --rol-accent: #F59E0B;
-  --rol-accent-light: #FEF3C7;
-  --rol-gradient: linear-gradient(135deg, #1D4ED8 0%, #1E3A8A 100%);
+  --rol-primary: #475569;
+  --rol-primary-light: #E2E8F0;
+  --rol-accent: #64748B;
+  --rol-accent-light: #F1F5F9;
+  --rol-gradient: linear-gradient(135deg, #334155 0%, #0F172A 100%);
 }
 
-/* ADMINISTRADOR — School admin: trust + green growth */
+/* ADMINISTRADOR */
 [data-role="ADMINISTRADOR"] {
-  --rol-primary: #2563EB;
-  --rol-primary-light: #DBEAFE;
-  --rol-accent: #059669;
-  --rol-accent-light: #D1FAE5;
-  --rol-gradient: linear-gradient(135deg, #2563EB 0%, #065F46 100%);
+  --rol-primary: #64748B;
+  --rol-primary-light: #F1F5F9;
+  --rol-accent: #475569;
+  --rol-accent-light: #E2E8F0;
+  --rol-gradient: linear-gradient(135deg, #475569 0%, #1E293B 100%);
 }
 
-/* ESTUDIANTE — Student: energy + teal */
+/* ESTUDIANTE */
 [data-role="ESTUDIANTE"] {
-  --rol-primary: #0D9488;
-  --rol-primary-light: #CCFBF1;
-  --rol-accent: #EA580C;
-  --rol-accent-light: #FFEDD5;
-  --rol-gradient: linear-gradient(135deg, #0D9488 0%, #9A3412 100%);
+  --rol-primary: #64748B;
+  --rol-primary-light: #F1F5F9;
+  --rol-accent: #475569;
+  --rol-accent-light: #E2E8F0;
+  --rol-gradient: linear-gradient(135deg, #475569 0%, #1E293B 100%);
 }
 
 /* =============================================
@@ -368,10 +368,8 @@ body {
    TEXT UTILITIES
    ============================================= */
 .text-primary { color: var(--clr-primary); }
-.text-accent { color: var(--clr-accent); }
 .text-warm { color: var(--clr-warm); }
 .text-muted { color: var(--clr-muted); }
-.text-success { color: var(--color-success); }
 .text-error { color: var(--color-error); }
 
 /* =============================================
@@ -379,7 +377,6 @@ body {
    ============================================= */
 .bg-surface { background: var(--clr-surface); }
 .bg-primary-light { background: var(--clr-primary-light); }
-.bg-accent-light { background: var(--clr-accent-light); }
 .bg-warm-light { background: var(--clr-warm-light); }
 .bg-success-light { background: var(--color-success-light); }
 .bg-error-light { background: var(--color-error-light); }
@@ -427,11 +424,6 @@ body {
   width: 200px; height: 200px;
   background: rgba(255,255,255,0.03);
   bottom: -50px; left: -40px;
-}
-.hero-shape-3 {
-  width: 120px; height: 120px;
-  background: rgba(255,255,255,0.05);
-  top: 40px; left: 20%;
 }
 
 /* =============================================

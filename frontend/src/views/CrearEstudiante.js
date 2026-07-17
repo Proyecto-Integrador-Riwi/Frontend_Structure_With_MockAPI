@@ -1,8 +1,10 @@
+/** Registro de estudiante con credenciales de acceso (username/password). Solo ADMIN. */
 import Auth from "../modules/auth";
 import http from "../modules/http";
 import Layout from "../components/Layout";
 import Toast from "../components/Toast";
 import Router from "../modules/router";
+import { isAdmin } from "../utils/permissions";
 import * as StudentService from "../services/studentService";
 import * as InstitutionService from "../services/institutionService";
 
@@ -106,6 +108,25 @@ const CrearEstudiante = {
                                         placeholder="Teléfono de contacto" />
                                 </div>
                             </div>
+
+                            <h3 class="text-md font-semibold text-gray-700 pt-2">Credenciales de acceso</h3>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="st-username" class="block text-sm font-medium text-gray-700 mb-1">Usuario *</label>
+                                    <input id="st-username" type="text" required
+                                        class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                                        placeholder="Nombre de usuario para el ingreso" />
+                                    <p class="text-xs text-red-500 mt-1 hidden" id="st-username-error"></p>
+                                </div>
+                                <div>
+                                    <label for="st-password" class="block text-sm font-medium text-gray-700 mb-1">Contraseña *</label>
+                                    <input id="st-password" type="password" required minlength="6"
+                                        class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                                        placeholder="Mínimo 6 caracteres" />
+                                    <p class="text-xs text-red-500 mt-1 hidden" id="st-password-error"></p>
+                                </div>
+                            </div>
                         </div>
 
                         <div class="card p-6 space-y-5">
@@ -157,17 +178,28 @@ const CrearEstudiante = {
                 </div>
             `;
 
+            // Loading indicator mientras cargan catálogos
+            const formEl = content.querySelector("#student-form");
+            const loadingOverlay = document.createElement("div");
+            loadingOverlay.className = "flex items-center justify-center py-12";
+            loadingOverlay.innerHTML = '<span class="spinner"></span><span class="ml-3 text-sm text-gray-500">Cargando datos del formulario...</span>';
+            formEl.parentNode.insertBefore(loadingOverlay, formEl);
+            formEl.style.display = "none";
+
             // Cargar catálogos
             (async () => {
                 try {
                     const [docTypes, genders, neighborhoods, institutions, grades, statuses] = await Promise.all([
-                        http.get('api/document-types').then(r => r.json()),
-                        http.get('api/genders').then(r => r.json()),
-                        http.get('api/neighborhoods').then(r => r.json()),
+                        http.getJSON('api/document-types'),
+                        http.getJSON('api/genders'),
+                        http.getJSON('api/neighborhoods'),
                         InstitutionService.getInstitutions(),
-                        http.get('api/grades').then(r => r.json()),
-                        http.get('api/statuses').then(r => r.json())
+                        http.getJSON('api/grades'),
+                        http.getJSON('api/statuses')
                     ]);
+
+                    loadingOverlay.remove();
+                    formEl.style.display = "";
 
                     // Llenar selects
                     const fillSelect = (id, items, valueKey, labelKey) => {
@@ -217,6 +249,8 @@ const CrearEstudiante = {
 
                 } catch (err) {
                     console.error("Error loading catalogs:", err);
+                    loadingOverlay.remove();
+                    formEl.style.display = "";
                     Toast.error("Error al cargar datos del formulario");
                 }
             })();
@@ -239,7 +273,9 @@ const CrearEstudiante = {
                     { id: "st-institution", key: "institution_id", label: "Institución" },
                     { id: "st-grade", key: "grade_id", label: "Grado" },
                     { id: "st-status", key: "status_id", label: "Estado" },
-                    { id: "st-start_date", key: "start_date", label: "Fecha de inicio" }
+                    { id: "st-start_date", key: "start_date", label: "Fecha de inicio" },
+                    { id: "st-username", key: "username", label: "Usuario" },
+                    { id: "st-password", key: "password", label: "Contraseña" }
                 ];
 
                 let valid = true;
@@ -253,7 +289,7 @@ const CrearEstudiante = {
                         err.classList.add("hidden");
                         err.textContent = "";
                     }
-                    if (inp && inp.hasAttribute("required") && !inp.value) {
+                    if (inp && inp.required && !inp.value) {
                         if (err) {
                             err.textContent = `${f.label} es obligatorio`;
                             err.classList.remove("hidden");
@@ -261,6 +297,16 @@ const CrearEstudiante = {
                         valid = false;
                     }
                 });
+
+                const pw = content.querySelector("#st-password");
+                const pwErr = content.querySelector("#st-password-error");
+                if (pw && pw.value && pw.value.length < 6) {
+                    if (pwErr) {
+                        pwErr.textContent = "La contraseña debe tener al menos 6 caracteres";
+                        pwErr.classList.remove("hidden");
+                    }
+                    valid = false;
+                }
 
                 if (!valid) return;
 

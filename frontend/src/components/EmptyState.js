@@ -1,3 +1,4 @@
+/** Estado vacio con icono y mensaje para listas sin resultados. */
 const ILLUSTRATIONS = {
     'campaigns': `
         <svg class="w-20 h-20 text-gray-300" viewBox="0 0 80 80" fill="none" aria-hidden="true">

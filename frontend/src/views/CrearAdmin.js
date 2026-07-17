@@ -1,9 +1,12 @@
+/** Crear administrador de institucion — solo accesible por SUPERADMIN. */
 import Auth from "../modules/auth";
 import http from "../modules/http";
 import Layout from "../components/Layout";
 import Toast from "../components/Toast";
 import Router from "../modules/router";
 import * as InstitutionService from "../services/institutionService";
+
+let _adminRoleId = null;
 
 const CrearAdmin = {
     render() {
@@ -34,6 +37,14 @@ const CrearAdmin = {
                             </div>
 
                             <div>
+                                <label for="adm-confirm-password" class="block text-sm font-medium text-gray-700 mb-1">Confirmar contraseña *</label>
+                                <input id="adm-confirm-password" type="password" required minlength="6"
+                                    class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                                    placeholder="Repite la contraseña" />
+                                <p class="text-xs text-red-500 mt-1 hidden" id="adm-confirm-password-error"></p>
+                            </div>
+
+                            <div>
                                 <label for="adm-institution" class="block text-sm font-medium text-gray-700 mb-1">Institución *</label>
                                 <select id="adm-institution" required
                                     class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
@@ -50,6 +61,17 @@ const CrearAdmin = {
                     </form>
                 </div>
             `;
+
+            // Obtener role_id de ADMINISTRADOR
+            (async () => {
+                try {
+                    const roles = await http.getJSON('api/user-roles');
+                    const adminRole = roles.find(r => r.name === 'ADMINISTRADOR');
+                    if (adminRole) _adminRoleId = adminRole.id;
+                } catch (err) {
+                    console.error("Error loading roles:", err);
+                }
+            })();
 
             // Cargar instituciones
             (async () => {
@@ -73,6 +95,7 @@ const CrearAdmin = {
 
                 const usernameVal = content.querySelector("#adm-username").value.trim();
                 const passwordVal = content.querySelector("#adm-password").value;
+                const confirmVal = content.querySelector("#adm-confirm-password").value;
                 const institutionVal = content.querySelector("#adm-institution").value;
 
                 let valid = true;
@@ -88,10 +111,12 @@ const CrearAdmin = {
 
                 hideError("#adm-username-error");
                 hideError("#adm-password-error");
+                hideError("#adm-confirm-password-error");
                 hideError("#adm-institution-error");
 
                 if (!usernameVal) showError("#adm-username-error", "El usuario es obligatorio");
                 if (!passwordVal || passwordVal.length < 6) showError("#adm-password-error", "La contraseña debe tener al menos 6 caracteres");
+                if (passwordVal !== confirmVal) showError("#adm-confirm-password-error", "Las contraseñas no coinciden");
                 if (!institutionVal) showError("#adm-institution-error", "Selecciona una institución");
 
                 if (!valid) return;
@@ -104,7 +129,7 @@ const CrearAdmin = {
                     const res = await http.post('api/credentials', {
                         username: usernameVal,
                         password: passwordVal,
-                        role_id: 2, // ADMINISTRADOR
+                        role_id: _adminRoleId || 2,
                         institution_id: parseInt(institutionVal)
                     });
 

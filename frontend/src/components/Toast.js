@@ -1,3 +1,4 @@
+/** Sistema de notificaciones toast con posicion fija y auto-dismiss. */
 const MAX_TOASTS = 3;
 
 const Toast = {

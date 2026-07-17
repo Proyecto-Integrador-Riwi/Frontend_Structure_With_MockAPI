@@ -1,3 +1,4 @@
+/** Servicio de instituciones - CRUD completo. */
 /**
  * Servicio de Instituciones
  *
@@ -64,11 +65,11 @@ export async function updateInstitution(id, data) {
 }
 
 /**
- * Eliminar una institución
+ * Alternar estado activo/inactivo de una institución
  * @param {number} id - ID de la institución
  * @returns {Promise<Object>}
  */
-export async function deleteInstitution(id) {
-    const res = await http.delete('api/institutions', id);
+export async function toggleInstitutionActive(id) {
+    const res = await http.patch(`api/institutions/${id}/toggle-active`);
     return res.json();
 }

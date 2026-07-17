@@ -1,3 +1,4 @@
+/** Configuracion de usuario — cambio de contrasena y selector de tema oscuro. */
 import Auth from "../modules/auth";
 import http from "../modules/http";
 import Layout from "../components/Layout";

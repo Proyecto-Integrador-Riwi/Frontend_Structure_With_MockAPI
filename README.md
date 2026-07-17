@@ -54,6 +54,8 @@ npm run dev:frontend  # Solo frontend
 
 ```bash
 npm run db:seed
+# o dentro de backend/
+npm run seed
 ```
 
 ---
@@ -63,9 +65,11 @@ npm run db:seed
 | Rol | Usuario | Contraseña |
 |-----|---------|------------|
 | SuperAdmin | `admin_global` | `123456` |
-| Admin Inst. 1 | `admin_n1` | `123456` |
-| Admin Inst. 2–10 | `admin_n2` … `admin_n10` | `123456` |
-| Estudiante | `(email sin @)` | `123456` |
+| Admin Inst. 1 (Normal Superior) | `admin_n1` | `123456` |
+| Admin Inst. 2 (Uninorte) | `admin_n2` | `123456` |
+| Estudiante (M, 11°, activo) | `carlos.garcia4` | `123456` |
+| Estudiante (F, 10°, activa) | `maria.lopez5` | `123456` |
+| Estudiante (M, 11°, egresado) | `jose.rodriguez6` | `123456` |
 
 ---
 
@@ -75,21 +79,25 @@ npm run db:seed
 |------|-------|-----------|-------|
 | `/` | Login | No | — |
 | `/dashboard-superadmin` | Panel SuperAdmin | Sí | SUPERADMIN |
-| `/dashboard-admin` | Panel Admin institución | Sí | ADMINISTRADOR |
+| `/dashboard` | Panel Admin institución | Sí | ADMINISTRADOR |
 | `/dashboard-estudiante` | Panel Estudiante | Sí | ESTUDIANTE |
-| `/estudiantes` | Lista de estudiantes | Sí | SUPERADMIN, ADMINISTRADOR |
-| `/estudiantes/crear` | Crear estudiante | Sí | SUPERADMIN, ADMINISTRADOR |
-| `/estudiante/:id` | Detalle de estudiante | Sí | Todos |
-| `/campanas` | Lista de campañas | Sí | Todos |
-| `/campanas/crear` | Crear campaña | Sí | SUPERADMIN, ADMINISTRADOR |
-| `/campanas/:id` | Detalle de campaña | Sí | Todos |
 | `/instituciones` | Gestionar instituciones | Sí | SUPERADMIN |
 | `/instituciones/crear` | Crear institución | Sí | SUPERADMIN |
-| `/instituciones/:id` | Detalle institución | Sí | Todos |
+| `/instituciones/:id` | Detalle institución | Sí | SUPERADMIN, ADMINISTRADOR |
 | `/instituciones/:id/editar` | Editar institución | Sí | SUPERADMIN |
-| `/crear-admin` | Crear admin | Sí | SUPERADMIN |
+| `/instituciones/crear-admin` | Crear admin | Sí | SUPERADMIN |
+| `/institucion` | Mi Institución (admin) | Sí | ADMINISTRADOR |
+| `/campanas` | Lista de campañas | Sí | SUPERADMIN, ADMINISTRADOR |
+| `/campanas/crear` | Crear campaña | Sí | SUPERADMIN, ADMINISTRADOR |
+| `/campanas/:id` | Detalle de campaña | Sí | SUPERADMIN, ADMINISTRADOR |
+| `/campanas/:id/editar` | Editar campaña | Sí | SUPERADMIN, ADMINISTRADOR |
+| `/estudiantes` | Lista de estudiantes | Sí | ADMINISTRADOR |
+| `/estudiantes/crear` | Crear estudiante | Sí | ADMINISTRADOR |
+| `/estudiante/:id` | Detalle de estudiante | Sí | SUPERADMIN, ADMINISTRADOR |
+| `/estudiante/:id/editar` | Editar estudiante | Sí | ADMINISTRADOR |
 | `/mis-campanas` | Campañas del estudiante | Sí | ESTUDIANTE |
-| `/perfil` | Perfil personal | Sí | Todos |
+| `/perfil` | Perfil personal (solo lectura) | Sí | ADMINISTRADOR, ESTUDIANTE |
+| `/perfil/editar` | Actualizar datos personales | Sí | ESTUDIANTE |
 | `/configuracion` | Configuración | Sí | Todos |
 
 ---
@@ -114,7 +122,7 @@ npm run db:seed
 │   └── src/
 │       ├── main.js           # Entry point + rutas
 │       ├── style.css         # Tailwind + estilos globales
-│       ├── views/            # 17 vistas (una por ruta)
+│       ├── views/            # 19 vistas (una por ruta)
 │       ├── components/       # 11 componentes reutilizables
 │       ├── modules/          # Router, auth, HTTP client
 │       ├── services/         # Llamadas a la API

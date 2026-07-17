@@ -1,3 +1,4 @@
+/** Barra de navegacion superior con breadcrumbs, toggle sidebar y cierre de sesion. */
 import Auth from "../modules/auth";
 import Router from "../modules/router";
 import ConfirmDialog from "../components/ConfirmDialog";

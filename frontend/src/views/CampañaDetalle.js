@@ -1,8 +1,12 @@
+/** Detalle de campaña — muestra información completa, estudiantes inscritos, progreso y criterios. */
 import Auth from "../modules/auth";
 import http from "../modules/http";
 import Layout from "../components/Layout";
 import Skeleton from "../components/Skeleton";
 import EmptyState from "../components/EmptyState";
+import { createErrorView } from "../utils/errorHandler";
+import { formatDate, getCampaignStatus } from "../utils/dates";
+import { isAdmin } from "../utils/permissions";
 import * as CampaignService from "../services/campaignService";
 import ConfirmDialog from "../components/ConfirmDialog";
 import Toast from "../components/Toast";
@@ -41,31 +45,14 @@ const CampanaDetalle = {
                         http.get(`api/campaigns/${id}/progress`).then(r => r.json()).catch(() => null)
                     ]);
                     const user = Auth.getUser();
-                    const isAdmin = user?.rol === "SUPERADMIN" || user?.rol === "ADMINISTRADOR";
+                    const userIsAdmin = isAdmin();
 
-                    const now = new Date();
-                    const start = new Date(campaign.start_date);
-                    const end = campaign.end_date ? new Date(campaign.end_date) : new Date("2099-12-31");
-
-                    let status = "Próxima";
-                    let statusColor = "badge-yellow";
-                    if (now >= start && now <= end) {
-                        status = "Activa";
-                        statusColor = "badge-green";
-                    } else if (now > end) {
-                        status = "Finalizada";
-                        statusColor = "badge-gray";
-                    }
+                    const cs = getCampaignStatus(campaign);
+                    const status = cs.label;
+                    const statusColor = cs.color;
 
                     const typeKey = (campaign.type || "").toLowerCase().replace(/\s+/g, "_");
                     const typeBadgeClass = TYPE_BADGE_COLORS[typeKey] || "badge-blue";
-
-                    const formatDate = (dateStr) => {
-                        if (!dateStr) return "Sin fin";
-                        return new Intl.DateTimeFormat("es-CO", {
-                            day: "2-digit", month: "short", year: "numeric"
-                        }).format(new Date(dateStr));
-                    };
 
                     content.innerHTML = `
                         <div class="content-fade-in">
@@ -76,7 +63,7 @@ const CampanaDetalle = {
                             <div class="card overflow-hidden mb-6">
                                 ${campaign.url_multimedia ? `
                                     <div class="h-48 sm:h-64 overflow-hidden">
-                                        <img src="${campaign.url_multimedia}" alt="${campaign.title}" class="w-full h-full object-cover" />
+                                        <img src="${campaign.url_multimedia.startsWith('http') ? campaign.url_multimedia : 'https://' + campaign.url_multimedia}" alt="${campaign.title}" class="w-full h-full object-cover" />
                                     </div>
                                 ` : `
                                     <div class="h-48 sm:h-64 gradient-barranquilla flex items-center justify-center">
@@ -99,7 +86,7 @@ const CampanaDetalle = {
                                             ` : ""}
                                         </div>
 
-                                        ${isAdmin ? `
+                                        ${userIsAdmin ? `
                                             <div class="flex items-center gap-2">
                                                 <a data-link href="/campanas/${id}/editar" class="btn-secondary text-sm px-4 py-2">
                                                     Editar
@@ -247,15 +234,8 @@ const CampanaDetalle = {
 
                 } catch (err) {
                     console.error(err);
-                    content.innerHTML = `
-                        <div class="flex flex-col items-center justify-center py-20 text-center content-fade-in">
-                            <svg class="w-16 h-16 text-red-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            <p class="text-gray-500 mb-4">Error al cargar la campaña</p>
-                            <button class="btn-primary" onclick="window.location.reload()">Reintentar</button>
-                        </div>
-                    `;
+                    content.innerHTML = "";
+                    content.appendChild(createErrorView("Error al cargar la campaña"));
                 }
             })();
 

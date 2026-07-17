@@ -1,3 +1,4 @@
+/** Layout principal - navbar superior, sidebar lateral y area de contenido. */
 import Auth from "../modules/auth";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
@@ -63,6 +64,7 @@ const Layout = {
                     }
                     const isOpen = sidebarEl.classList.contains("translate-x-0");
                     toggleBtn.setAttribute("aria-label", isOpen ? "Cerrar menú" : "Abrir menú");
+                    toggleBtn.setAttribute("aria-expanded", isOpen);
                 };
                 toggleBtn.addEventListener("click", toggle);
                 backdrop.addEventListener("click", toggle);
