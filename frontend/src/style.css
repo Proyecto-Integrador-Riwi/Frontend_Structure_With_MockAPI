@@ -30,8 +30,9 @@
   --clr-warm-light: #FEF3C7;
   --clr-surface: #F8FAFC;
   --clr-card: #FFFFFF;
+  --clr-bg: #F8F9FA;
   --clr-text: #1E293B;
-  --clr-muted: #94A3B8;
+  --clr-muted: #43474E;
 
   /* --- Semantic colors --- */
   --color-success: #16a34a;
@@ -61,7 +62,7 @@
   --rol-primary-light: #142334;
   --rol-accent: #64748B;
   --rol-accent-light: #F1F5F9;
-  --rol-gradient: linear-gradient(135deg, #334155 0%, #0F172A 100%);
+  --rol-gradient: linear-gradient(135deg, #142334 0%, #001833 100%);
 }
 
 /* =============================================
@@ -70,29 +71,29 @@
 
 /* SUPERADMIN */
 [data-role="SUPERADMIN"] {
-  --rol-primary: #475569;
+  --rol-primary: #142334;
   --rol-primary-light: #E2E8F0;
   --rol-accent: #64748B;
   --rol-accent-light: #F1F5F9;
-  --rol-gradient: linear-gradient(135deg, #334155 0%, #0F172A 100%);
+  --rol-gradient: linear-gradient(135deg, #142334 0%, #001833 100%);
 }
 
 /* ADMINISTRADOR */
 [data-role="ADMINISTRADOR"] {
-  --rol-primary: #64748B;
-  --rol-primary-light: #F1F5F9;
-  --rol-accent: #475569;
-  --rol-accent-light: #E2E8F0;
-  --rol-gradient: linear-gradient(135deg, #475569 0%, #1E293B 100%);
+  --rol-primary: #142334;
+  --rol-primary-light: #E2E8F0;
+  --rol-accent: #64748B;
+  --rol-accent-light: #F1F5F9;
+  --rol-gradient: linear-gradient(135deg, #142334 0%, #001833 100%);
 }
 
 /* ESTUDIANTE */
 [data-role="ESTUDIANTE"] {
-  --rol-primary: #64748B;
-  --rol-primary-light: #F1F5F9;
-  --rol-accent: #475569;
-  --rol-accent-light: #E2E8F0;
-  --rol-gradient: linear-gradient(135deg, #475569 0%, #1E293B 100%);
+  --rol-primary: #142334;
+  --rol-primary-light: #E2E8F0;
+  --rol-accent: #64748B;
+  --rol-accent-light: #F1F5F9;
+  --rol-gradient: linear-gradient(135deg, #142334 0%, #001833 100%);
 }
 
 /* =============================================
@@ -506,7 +507,7 @@ body {
    BADGES
    ============================================= */
 .badge {
-  font-size: var(--fs-xs);
+  font-size: var(--fs-small);
   font-weight: 500;
   padding: 0.125rem 0.625rem;
   border-radius: 9999px;
@@ -584,7 +585,7 @@ body {
    GRADIENT HEADERS
    ============================================= */
 .gradient-barranquilla {
-  background: var(--rol-gradient, linear-gradient(135deg, var(--clr-primary) 0%, #1E3A8A 100%));
+  background: var(--rol-gradient, linear-gradient(135deg, var(--clr-primary) 0%, #001833 100%));
 }
 
 /* =============================================
@@ -619,7 +620,7 @@ body {
 .hero-shape-1 {
   width: 300px;
   height: 300px;
-  background: rgba(255, 255, 255, 0.04);
+  background: #ffffff0a;
   top: -80px;
   right: -60px;
 }
@@ -794,7 +795,7 @@ textarea {
 }
 
 [data-theme="dark"] .gradient-barranquilla {
-  background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%);
+  background: linear-gradient(135deg, #253343 0%, #12273D 100%);
 }
 
 [data-theme="dark"] .text-gray-800 {

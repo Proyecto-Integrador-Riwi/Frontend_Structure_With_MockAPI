@@ -12,13 +12,28 @@ const Login = {
 
         container.innerHTML = `
         <div class="flex mx-auto shadow-lg overflow-hidden rounded-xl bg-white w-full sm:justify-center">
-            <div class="grid grid-cols-1 lg:grid-cols-2 min-h-[700px]">
+            <div class="grid grid-cols-1 lg:grid-cols-2 min-h-175">
 
-                <div class="hidden lg:block">
+                <div class="relative hidden lg:block">
                     <img src="/src/assets/login.jpg" 
                     class="w-full h-full object-cover" 
                     alt="Estudiantes en aula"
                     role="presentation">
+                    <div class="absolute bottom-0 inset-0 bg-slate-950/45 p-10 flex flex-col justify-center text-white">
+
+                        <div class="absolute bottom-10 flex flex-col max-w-xl p-1">
+                            <div class="flex w-3xs mb-5">
+                                <span class="block h-1.5 flex-1 rounded-s-lg " style="background:#FF5963"></span>
+                                <span class="block h-1.5 flex-1" style="background:#FED000"></span>
+                                <span class="block h-1.5 flex-1 rounded-e-lg" style="background:#00875A"></span>
+                            </div>
+
+                        
+                        <h2 class="text-3xl w-md md:text-4xl font-bold leading-tight">Transformando la educación en el Caribe.</h2>
+                        <p class="mt-3 w-full text-base text-slate-200 font-normal">Accede a una red de conocimiento diseñada para potenciar el talento de nuestra región.</p>
+                        </div>
+                        
+                    </div>
                 </div>
 
 
@@ -69,12 +84,16 @@ const Login = {
                                     required
                                     aria-describedby="password-error">
                                 <button type="button" id="toggle-password"
-                                    class="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 text-gray-400 hover:text-gray-600 transition-colors"
+                                    class="absolute right-2 top-1/2 -translate-y-1/2 inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-400 hover:text-gray-600 transition-colors shrink-0"
                                     aria-label="Mostrar contraseña"
+                                    aria-pressed="false"
                                     tabindex="-1">
-                                    <svg class="w-5 h-5" id="eye-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                    <svg id="eye-icon-show" fill="none" stroke="currentColor" class="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7s-8.268-2.943-9.542-7"/>
+                                    </svg>
+                                    <svg id="eye-icon-hide" class="hidden w-5 h-5" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
+                                        <path d="M56.88 31.93a12 12 0 1 0-17.76 16.14l16 17.65C20.67 88.66 5.72 121.58 5 123.13a12.08 12.08 0 0 0 0 9.75c.37.82 9.13 20.26 28.49 39.61C59.37 198.34 92 212 128 212a131.3 131.3 0 0 0 51-10l20.09 22.1a12 12 0 0 0 17.76-16.14ZM128 188c-29.59 0-55.47-10.73-76.91-31.88A130.7 130.7 0 0 1 29.52 128c5.27-9.31 18.79-29.9 42-44.29l90.09 99.11A109.3 109.3 0 0 1 128 188m123-55.12c-.36.81-9 20-28 39.16a12 12 0 1 1-17-16.9A130.5 130.5 0 0 0 226.48 128a130.4 130.4 0 0 0-21.57-28.12C183.46 78.73 157.59 68 128 68c-3.35 0-6.7.14-10 .42a12 12 0 1 1-2-23.91c3.93-.34 8-.51 12-.51 36 0 68.63 13.67 94.49 39.52 19.35 19.35 28.11 38.8 28.48 39.61a12.08 12.08 0 0 1 .03 9.75"/>
                                     </svg>
                                 </button>
                             </div>
@@ -132,7 +151,7 @@ const Login = {
     },
 
 
-    _bindEvents(container){
+    _bindEvents(container) {
 
         const form = container.querySelector("#loginForm");
         const btn = container.querySelector("#login-btn");
@@ -142,7 +161,8 @@ const Login = {
         const usernameError = container.querySelector("#username-error");
         const passwordError = container.querySelector("#password-error");
         const toggleBtn = container.querySelector("#toggle-password");
-        const eyeIcon = container.querySelector("#eye-icon");
+        const eyeIconShow = container.querySelector("#eye-icon-show");
+        const eyeIconHide = container.querySelector("#eye-icon-hide");
         const rememberMe = container.querySelector("#remember-me");
         const forgotBtn = container.querySelector("#forgot-password");
 
@@ -159,24 +179,30 @@ const Login = {
             });
         };
 
-        const setLoading = (loading)=>{
+        const setLoading = (loading) => {
             btn.disabled = loading;
-            btn.innerHTML = loading 
-                ? '<span class="spinner"></span> Ingresando...' 
+            btn.innerHTML = loading
+                ? '<span class="spinner"></span> Ingresando...'
                 : 'Iniciar Sesión';
         };
 
         // Password visibility toggle
+        const setPasswordVisibility = (showPassword) => {
+            passwordInput.type = showPassword ? "text" : "password";
+            toggleBtn.setAttribute("aria-label", showPassword ? "Ocultar contraseña" : "Mostrar contraseña");
+            toggleBtn.setAttribute("aria-pressed", String(showPassword));
+            eyeIconShow.classList.toggle("hidden", showPassword);
+            eyeIconHide.classList.toggle("hidden", !showPassword);
+        };
+
         toggleBtn.addEventListener("click", () => {
             const isPassword = passwordInput.type === "password";
-            passwordInput.type = isPassword ? "text" : "password";
-            toggleBtn.setAttribute("aria-label", isPassword ? "Ocultar contraseña" : "Mostrar contraseña");
-            eyeIcon.innerHTML = isPassword
-                ? `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.243 4.243M9.878 9.878L3 3m3.456 14.322l2.422-2.422M9.878 9.878l4.243 4.243M9.878 9.878L3 3m6.456 14.322l2.422-2.422M3 3l18 18M3 3l6.456 14.322M21 12a9.97 9.97 0 01-3.437 6.364M15 12a3 3 0 00-3-3"/>`
-                : `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>`;
+            setPasswordVisibility(isPassword);
         });
 
-        form.addEventListener("submit", async(e)=>{
+        setPasswordVisibility(false);
+
+        form.addEventListener("submit", async (e) => {
             e.preventDefault();
 
             clearFieldErrors();
@@ -208,11 +234,11 @@ const Login = {
                 } else {
                     Router.navigate("/dashboard");
                 }
-            }catch(error){
+            } catch (error) {
                 errorMSG.textContent = error.message;
                 errorMSG.classList.remove("hidden");
                 container.classList.add("shake");
-            }finally{
+            } finally {
                 setLoading(false)
             }
         });

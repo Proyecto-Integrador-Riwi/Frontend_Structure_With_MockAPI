@@ -16,12 +16,12 @@ const CrearAdmin = {
 
             content.innerHTML = `
                 <div class="content-fade-in">
-                    <h1 class="text-2xl font-bold text-gray-800 mb-6">Crear Administrador</h1>
+                    <h1 class="text-3xl font-bold text-gray-800 mb-6">Crear Administrador</h1>
 
                     <form id="admin-form" class="space-y-6" novalidate>
                         <div class="card p-6 space-y-5">
                             <div>
-                                <label for="adm-username" class="block text-sm font-medium text-gray-700 mb-1">Nombre de usuario *</label>
+                                <label for="adm-username" class="block text-sm font-semibold text-gray-700 mb-1">Nombre de usuario <span class="text-red-500">*</span></label>
                                 <input id="adm-username" type="text" required
                                     class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                                     placeholder="Usuario para iniciar sesión" />
@@ -29,7 +29,7 @@ const CrearAdmin = {
                             </div>
 
                             <div>
-                                <label for="adm-password" class="block text-sm font-medium text-gray-700 mb-1">Contraseña *</label>
+                                <label for="adm-password" class="block text-sm font-semibold text-gray-700 mb-1">Contraseña <span class="text-red-500">*</span></label>
                                 <input id="adm-password" type="password" required minlength="6"
                                     class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                                     placeholder="Mínimo 6 caracteres" />
@@ -37,7 +37,7 @@ const CrearAdmin = {
                             </div>
 
                             <div>
-                                <label for="adm-confirm-password" class="block text-sm font-medium text-gray-700 mb-1">Confirmar contraseña *</label>
+                                <label for="adm-confirm-password" class="block text-sm font-semibold text-gray-700 mb-1">Confirmar contraseña <span class="text-red-500">*</span></label>
                                 <input id="adm-confirm-password" type="password" required minlength="6"
                                     class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                                     placeholder="Repite la contraseña" />
@@ -45,7 +45,7 @@ const CrearAdmin = {
                             </div>
 
                             <div>
-                                <label for="adm-institution" class="block text-sm font-medium text-gray-700 mb-1">Institución *</label>
+                                <label for="adm-institution" class="block text-sm font-semibold text-gray-700 mb-1">Institución <span class="text-red-500">*</span></label>
                                 <select id="adm-institution" required
                                     class="w-full px-4 py-2 border border-gray-200 rounded-xl text-sm bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500">
                                     <option value="">Seleccionar institución...</option>

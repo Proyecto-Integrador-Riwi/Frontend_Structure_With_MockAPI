@@ -36,12 +36,12 @@ const Campanas = {
 
                     content.innerHTML = `
                         <section class="mb-6 content-fade-in">
-                            <div class="bg-gradient-to-r from-slate-700 to-slate-900 rounded-2xl px-6 py-5 shadow-md flex flex-wrap items-center justify-between gap-4">
+                            <div class="gradient-barranquilla rounded-2xl px-6 py-5 shadow-md flex flex-wrap items-center justify-between gap-4">
                                 <div>
                                     <h1 class="text-2xl font-bold text-white">Campañas</h1>
                                     <p class="text-slate-200/80 mt-1 text-sm">Explora y gestiona todas las campañas disponibles</p>
                                 </div>
-                                <a data-link href="/campanas/crear" class="inline-flex items-center gap-2 bg-white text-slate-800 font-medium text-sm px-4 py-2 rounded-lg shadow-sm hover:bg-slate-100 transition">
+                                <a data-link href="/campanas/crear" class="inline-flex items-center gap-2 bg-[#F8F9FA] text-slate-800 font-medium text-sm px-4 py-2 rounded-lg shadow-sm hover:bg-slate-100 transition">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                                     </svg>

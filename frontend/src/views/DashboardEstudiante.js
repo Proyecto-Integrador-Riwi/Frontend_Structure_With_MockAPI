@@ -35,11 +35,11 @@ const DashboardEstudiante = {
                             <h1 class="text-2xl font-bold text-gray-800 mb-2">
                                 Bienvenido, ${user?.username || "Estudiante"}
                             </h1>
-                            <p class="text-muted">Aquí puedes ver las campañas disponibles para ti y actualizar tu información.</p>
+                            <p class="text-muted text-base">Aquí puedes ver las campañas disponibles para ti y actualizar tu información.</p>
                         </section>
 
                         <section class="mb-10">
-                            <h2 class="text-xl font-bold text-gray-800 mb-4">Campañas Disponibles</h2>
+                            <h2 class="text-2xl font-bold text-gray-800 mb-4">Campañas Disponibles</h2>
                             ${campaigns.length > 0
                                 ? `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 stagger-grid" id="campaigns-grid" aria-live="polite"></div>`
                                 : EmptyState.html('eye', 'No hay campañas disponibles en este momento.')

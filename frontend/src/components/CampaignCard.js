@@ -87,7 +87,7 @@ const CampaignCard = {
                 ` : ''}
             </div>
 
-            <div class="p-5 flex flex-col flex-grow">
+            <div class="p-5 flex flex-col ">
                 <h3 class="text-lg font-bold text-gray-800 mb-2 line-clamp-2">
                     ${campaign.title}
                 </h3>
@@ -99,7 +99,7 @@ const CampaignCard = {
                     </span>
                 </div>
 
-                <p class="text-gray-600 text-sm mb-4 line-clamp-3 flex-grow">
+                <p class="text-gray-600 text-sm mb-4 line-clamp-3 ">
                     ${campaign.description || 'Sin descripción'}
                 </p>
 

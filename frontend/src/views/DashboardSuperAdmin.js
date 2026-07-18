@@ -41,7 +41,7 @@ const DashboardSuperAdmin = {
 
                     const statIcons = {
                         students: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>`,
-                        graduates: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 14l9-5-9-5-9 5 9 5z"/><path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>`,
+                        graduates: `<svg class="pt-1 w-8 h-8" fill="currentColor" viewBox="0 0 24 24"><path d="M11 18L4 14.2V8.2L0 6L11 0L22 6V14H20V7.1L18 8.2V14.2L11 18ZM11 9.7L17.85 6L11 2.3L4.15 6L11 9.7ZM11 15.725L16 13.025V9.25L11 12L6 9.25V13.025L11 15.725Z" fill="currentColor"/></svg>`,
                         updated: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`,
                         pending: `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>`
                     };
@@ -57,14 +57,14 @@ const DashboardSuperAdmin = {
                                         <span class="text-white/60 text-sm">${new Date().toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span>
                                     </div>
                                     <h1 class="text-3xl font-bold text-white mb-2">Panel de Administración</h1>
-                                    <p class="text-white/80 text-lg max-w-2xl">Bienvenido al sistema de seguimiento educativo del Distrito de Barranquilla.</p>
+                                    <p class="text-white/80 text-base max-w-2xl">Bienvenido al sistema de seguimiento educativo del Distrito de Barranquilla.</p>
                                     <div class="flex flex-wrap gap-3 mt-5">
                                         <a data-link href="/campanas" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/20 text-white hover:bg-white/30 transition text-sm font-medium">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"/></svg>
                                             Campañas
                                         </a>
-                                        <a data-link href="/instituciones" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/20 text-white hover:bg-white/30 transition text-sm font-medium">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 14l9-5-9-5-9 5 9 5z"/><path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>
+                                        <a data-link href="/instituciones" class="inline-flex justify-center items-center gap-2 px-4 py-2 rounded-lg bg-white/20 text-white hover:bg-white/30 transition text-sm font-medium">
+                                            <svg class="pt-1 w-6 h-6" fill="none" viewBox="0 0 24 24"><path d="M11 18L4 14.2V8.2L0 6L11 0L22 6V14H20V7.1L18 8.2V14.2L11 18ZM11 9.7L17.85 6L11 2.3L4.15 6L11 9.7ZM11 15.725L16 13.025V9.25L11 12L6 9.25V13.025L11 15.725Z" fill="currentColor"/></svg>
                                             Instituciones
                                         </a>
                                     </div>
@@ -113,8 +113,8 @@ const DashboardSuperAdmin = {
 
                     const statsGrid = content.querySelector("#stats-grid");
                     const statConfigs = [
-                        { label: "Total Estudiantes", value: Number(stats.total_students ?? 0), icon: statIcons.students, color: "blue", description: "Estudiantes activos" },
-                        { label: "Egresados", value: Number(stats.total_graduates ?? 0), icon: statIcons.graduates, color: "purple", description: "Graduados" },
+                        { label: "Total Estudiantes", value: Number(stats.total_students ?? 0), icon: statIcons.students, color: "black", description: "Estudiantes activos" },
+                        { label: "Egresados", value: Number(stats.total_graduates ?? 0), icon: statIcons.graduates, color: "red", description: "Graduados" },
                         { label: "Actualizados", value: Number(stats.updated_count ?? 0), icon: statIcons.updated, color: "green", description: `${Number(stats.update_percentage ?? 0)}% del total` },
                         { label: "Pendientes", value: Number(stats.pending_count ?? 0), icon: statIcons.pending, color: "yellow", description: "Requieren actualización" }
                     ];
@@ -166,7 +166,7 @@ const DashboardSuperAdmin = {
             },
             {
                 label: "Crear Institución",
-                icon: `<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 14l9-5-9-5-9 5 9 5z"/><path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/></svg>`,
+                icon: `<svg class="pt-1 w-6 h-6" fill="none" viewBox="0 0 24 24"><path d="M11 18L4 14.2V8.2L0 6L11 0L22 6V14H20V7.1L18 8.2V14.2L11 18ZM11 9.7L17.85 6L11 2.3L4.15 6L11 9.7ZM11 15.725L16 13.025V9.25L11 12L6 9.25V13.025L11 15.725Z" fill="currentColor"/></svg>`,
                 href: "/instituciones/crear"
             }
         ];
@@ -192,7 +192,7 @@ const DashboardSuperAdmin = {
         el.className = "flex items-center gap-4 py-3 stagger-item cursor-pointer hover:bg-gray-50 px-2 -mx-2 rounded-lg transition";
         el.style.animationDelay = `${0.05 * index}s`;
         el.innerHTML = `
-            <span class="text-sm font-bold text-muted w-6">${index + 1}</span>
+            <span class="text-base font-bold text-muted w-6">${index + 1}</span>
             <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style="background:var(--rol-primary-light, #DBEAFE)">
                 <svg class="w-5 h-5" style="color:var(--rol-primary, #1D4ED8)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6"/></svg>
             </div>

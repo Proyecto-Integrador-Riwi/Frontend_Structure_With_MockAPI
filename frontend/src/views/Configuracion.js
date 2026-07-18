@@ -28,19 +28,32 @@ const Configuracion = {
 
                 <section class="mb-8">
                     <div class="bg-white rounded-2xl shadow p-6">
-                        <h2 class="text-lg font-semibold text-gray-800 mb-4">Apariencia</h2>
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Apariencia</h2>
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-sm font-medium text-gray-700">Tema</p>
-                                <p class="text-xs text-muted mt-0.5">Claro / Oscuro</p>
+                                <p class="text-base font-semibold text-gray-700">Tema</p>
+                                <p class="text-sm text-muted mt-0.5">Claro / Oscuro</p>
                             </div>
                             <button id="theme-toggle"
-                                class="relative w-14 h-7 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                                style="background:${currentTheme === "dark" ? "var(--rol-primary, #1D4ED8)" : "#d1d5db"}"
+                                class="relative flex cursor-pointer w-18 h-7 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                style="background:${currentTheme === "dark" ? "var(--rol-primary, #001833)" : "#d1d5db"}"
                                 aria-label="Cambiar tema">
-                                <span class="absolute top-0.5 left-0.5 w-6 h-6 rounded-full bg-white shadow-md flex items-center justify-center transition-transform duration-300 text-xs"
+                                <span id="theme-toggle-thumb" class="absolute  left-1.5 w-8 h-8 rounded-full bg-white shadow-md flex items-center justify-center transition-transform duration-400"
                                     style="transform:translateX(${currentTheme === "dark" ? "28px" : "0"})">
-                                    ${currentTheme === "dark" ? "🌙" : "☀️"}
+                                    <svg id="theme-icon-sun" class="w-5 h-5 text-yellow-500 ${currentTheme === "dark" ? "hidden" : "block"}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <circle cx="12" cy="12" r="5"></circle>
+                                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                                    </svg>
+                                    <svg id="theme-icon-moon" class="hidden w-5 h-5 text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <path d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z"/>
+                                    </svg>
                                 </span>
                             </button>
                         </div>
@@ -49,7 +62,7 @@ const Configuracion = {
 
                 <section>
                     <div class="bg-white rounded-2xl shadow p-6">
-                        <h2 class="text-lg font-semibold text-gray-800 mb-4">Cambiar Contraseña</h2>
+                        <h2 class="text-xl font-semibold text-gray-800 mb-4">Cambiar Contraseña</h2>
                         <form id="password-form" class="space-y-4" novalidate>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1" for="cfg-current-password">Contraseña actual</label>
@@ -76,7 +89,7 @@ const Configuracion = {
                             <div id="cfg-message" class="hidden text-sm rounded-lg p-3" role="alert"></div>
 
                             <div class="flex justify-end">
-                                <button type="submit" id="cfg-save" class="btn-primary text-sm">
+                                <button type="submit" id="cfg-save" class="btn-primary text-sm px-4 py-2 rounded-lg flex items-center gap-2 cursor-pointer">
                                     Cambiar Contraseña
                                 </button>
                             </div>
@@ -89,10 +102,15 @@ const Configuracion = {
                 const next = getStoredTheme() === "dark" ? "light" : "dark";
                 applyTheme(next);
                 const btn = content.querySelector("#theme-toggle");
-                const dot = btn.querySelector("span");
-                btn.style.background = next === "dark" ? "var(--rol-primary, #1D4ED8)" : "#d1d5db";
-                dot.style.transform = next === "dark" ? "translateX(28px)" : "translateX(0)";
-                dot.innerHTML = next === "dark" ? "🌙" : "☀️";
+                const thumb = content.querySelector("#theme-toggle-thumb");
+                const sun = content.querySelector("#theme-icon-sun");
+                const moon = content.querySelector("#theme-icon-moon");
+                btn.style.background = next === "dark" ? "var(--rol-primary, #142334)" : "#d1d5db";
+                thumb.style.transform = next === "dark" ? "translateX(28px)" : "translateX(0)";
+                sun.classList.toggle("hidden", next === "dark");
+                sun.classList.toggle("block", next !== "dark");
+                moon.classList.toggle("hidden", next !== "dark");
+                moon.classList.toggle("block", next === "dark");
             });
 
             const form = content.querySelector("#password-form");
