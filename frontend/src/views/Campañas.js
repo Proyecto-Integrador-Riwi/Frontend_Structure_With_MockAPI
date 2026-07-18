@@ -38,7 +38,7 @@ const Campanas = {
                         <section class="mb-6 content-fade-in">
                             <div class="gradient-barranquilla rounded-2xl px-6 py-5 shadow-md flex flex-wrap items-center justify-between gap-4">
                                 <div>
-                                    <h1 class="text-2xl font-bold text-white">Campañas</h1>
+                                    <h1 class="text-3xl font-bold text-white">Campañas</h1>
                                     <p class="text-slate-200/80 mt-1 text-sm">Explora y gestiona todas las campañas disponibles</p>
                                 </div>
                                 <a data-link href="/campanas/crear" class="inline-flex items-center gap-2 bg-[#F8F9FA] text-slate-800 font-medium text-sm px-4 py-2 rounded-lg shadow-sm hover:bg-slate-100 transition">
@@ -53,14 +53,14 @@ const Campanas = {
                         <div class="bg-white rounded-lg shadow-sm p-4 mb-6 content-fade-in">
                             <div class="flex flex-wrap items-end gap-4 max-sm:flex-col max-sm:gap-3">
                                 <div class="flex flex-col max-sm:w-full">
-                                    <label class="text-sm font-medium text-gray-700 mb-1">Buscar</label>
+                                    <label class="text-base font-medium text-gray-700 mb-1">Buscar</label>
                                     <input id="cam-search" type="text" placeholder="Nombre de la campaña..."
-                                        class="px-4 py-2 border border-gray-200 rounded-lg text-sm bg-white min-w-[200px] focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                                        class="px-4 py-2 border border-gray-200 rounded-lg text-sm bg-white min-w-50 focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                                         aria-label="Buscar campañas por nombre" />
                                 </div>
 
                                 <div class="flex flex-col max-sm:w-full">
-                                    <label class="text-sm font-medium text-gray-700 mb-1">Estado</label>
+                                    <label class="text-base font-medium text-gray-700 mb-1">Estado</label>
                                     <select id="cam-status-filter" class="px-4 py-2 border border-gray-200 rounded-lg text-sm bg-white" aria-label="Filtrar por estado">
                                         <option value="">Todos los estados</option>
                                         <option value="active">Vigentes</option>
@@ -71,7 +71,7 @@ const Campanas = {
 
                                 ${types.length > 0 ? `
                                     <div class="flex flex-col max-sm:w-full">
-                                        <label class="text-sm font-medium text-gray-700 mb-1">Tipo</label>
+                                        <label class="text-base font-medium text-gray-700 mb-1">Tipo</label>
                                         <select id="cam-type-filter" class="px-4 py-2 border border-gray-200 rounded-lg text-sm bg-white" aria-label="Filtrar por tipo">
                                             <option value="">Todos los tipos</option>
                                             ${types.map(t => `<option value="${t}">${t}</option>`).join("")}

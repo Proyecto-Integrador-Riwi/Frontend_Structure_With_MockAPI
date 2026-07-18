@@ -47,7 +47,7 @@ const Login = {
                         Bienvenido a NexoEdu
                     </h1>
 
-                    <p class="text-gray-500 text-lg py-2 text-center">
+                    <p class="text--(--clr-text) text-lg py-2 text-center">
                         Inicia sesión para continuar con tu formación académica.
                     </p>
 

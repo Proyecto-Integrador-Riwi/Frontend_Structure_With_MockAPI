@@ -16,7 +16,7 @@ const Institucion = {
     render(params = {}) {
         return Layout.render(() => {
             const content = document.createElement("div");
-            content.className = "max-w-7xl mx-auto";
+            content.className = "max-w-7xl mx-auto mb-30";
 
             const user = Auth.getUser();
             let institutionId = params.id || user?.institution_id;
@@ -76,9 +76,8 @@ const Institucion = {
                         <section class="flex justify-center -mt-12 mb-6 relative z-10 px-6">
                             <div class="bg-white rounded-full p-2 shadow-lg">
                                 <div class="w-24 h-24 rounded-full bg-primary-light flex items-center justify-center">
-                                    <svg class="w-12 h-12 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path d="M12 14l9-5-9-5-9 5 9 5z"/>
-                                        <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"/>
+                                    <svg class="pt-3 w-16 h-16 text-blue-500" fill="none"  viewBox="0 0 24 24">
+                                        <path d="M11 18L4 14.2V8.2L0 6L11 0L22 6V14H20V7.1L18 8.2V14.2L11 18ZM11 9.7L17.85 6L11 2.3L4.15 6L11 9.7ZM11 15.725L16 13.025V9.25L11 12L6 9.25V13.025L11 15.725Z" fill="currentColor"/>
                                     </svg>
                                 </div>
                             </div>

@@ -23,7 +23,7 @@ const CampaignCard = {
     render(campaign, options = {}) {
         const {
             showEnrollButton = false,
-            onEnroll = () => {}
+            onEnroll = () => { }
         } = options;
 
         const now = new Date();
@@ -54,7 +54,7 @@ const CampaignCard = {
         const typeBadgeClass = TYPE_BADGE_COLORS[typeKey] || 'badge-blue';
 
         const card = document.createElement('div');
-        card.className = 'card card-hover flex flex-col h-full';
+        card.className = 'card card-hover flex flex-col h-full rounded-md shadow-sm overflow-hidden transition';
 
         card.innerHTML = `
             <div class="relative h-40 gradient-barranquilla overflow-hidden">
@@ -80,7 +80,7 @@ const CampaignCard = {
 
                 ${campaign.sponsor ? `
                     <div class="absolute bottom-3 left-3">
-                        <span class="px-2 py-1 rounded text-xs font-medium bg-white/90 text-gray-700">
+                        <span class="px-2 py-1 rounded text-xs font-medium bg-(--clr-bg) text-black">
                             ${campaign.sponsor}
                         </span>
                     </div>
@@ -93,7 +93,7 @@ const CampaignCard = {
                 </h3>
 
                 <div class="mb-2">
-                    <span class="badge ${typeBadgeClass} inline-flex items-center">
+                    <span class=" ${typeBadgeClass} flex flex-row items-center w-fit px-4 py-1 text-sm font-semibold rounded-2xl">
                         ${typeIcon}
                         ${campaign.type || 'General'}
                     </span>

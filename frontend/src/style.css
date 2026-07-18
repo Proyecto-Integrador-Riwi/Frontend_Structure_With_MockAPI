@@ -752,6 +752,7 @@ textarea {
    DARK MODE
    ============================================= */
 [data-theme="dark"] {
+  --clr-primary: #F8F9FA;
   --clr-surface: #0f172a;
   --clr-card: #1e293b;
   --clr-text: #e2e8f0;
@@ -764,6 +765,11 @@ textarea {
 
 [data-theme="dark"] .card {
   border-color: #334155;
+}
+
+[data-theme="dark"] .btn-primary {
+  background: #e9f2ff;
+  color: var(--rol-primary, #142334);
 }
 
 [data-theme="dark"] .btn-secondary {

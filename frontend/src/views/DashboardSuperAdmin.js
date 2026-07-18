@@ -177,7 +177,7 @@ const DashboardSuperAdmin = {
             el.href = action.href;
             el.className = "flex items-center gap-3 p-3 rounded-lg transition cursor-pointer hover:bg-gray-50";
             el.innerHTML = `
-                <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style="background:var(--rol-primary-light, #DBEAFE)">
+                <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style="background:var(--rol-primary-light, #DBEAFE)">
                     <span style="color:var(--rol-primary, #1D4ED8)">${action.icon}</span>
                 </div>
                 <span class="text-sm font-medium text-gray-700">${action.label}</span>
@@ -193,14 +193,14 @@ const DashboardSuperAdmin = {
         el.style.animationDelay = `${0.05 * index}s`;
         el.innerHTML = `
             <span class="text-base font-bold text-muted w-6">${index + 1}</span>
-            <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style="background:var(--rol-primary-light, #DBEAFE)">
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style="background:var(--rol-primary-light, #DBEAFE)">
                 <svg class="w-5 h-5" style="color:var(--rol-primary, #1D4ED8)" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6"/></svg>
             </div>
-            <div class="flex-grow min-w-0">
+            <div class="grow min-w-0">
                 <p class="text-sm font-medium text-gray-800 truncate">${campaign.title}</p>
                 <p class="text-xs text-muted">${campaign.type || "General"}</p>
             </div>
-            <div class="text-right flex-shrink-0">
+            <div class="text-right shrink-0">
                 <p class="text-sm font-bold" style="color:var(--rol-primary, #1D4ED8)">${campaign.enrollment_count || 0}</p>
                 <p class="text-xs text-muted">inscritos</p>
             </div>
